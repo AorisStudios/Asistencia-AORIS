@@ -31,11 +31,15 @@ export function getShiftHours(nombre) {
 }
 
 export function addH(h, hrs) {
-  const [hh, mm, ss] = h.split(':').map(Number);
+  if (!h) return '00:00:00';
+  const parts = h.split(':');
+  const hh = parseInt(parts[0] || 0);
+  const mm = parseInt(parts[1] || 0);
+  const ss = parseInt(parts[2] || 0); // Si no hay segundos, asumir 0
   const t = hh * 3600 + mm * 60 + ss + hrs * 3600;
   return String(Math.floor(t / 3600) % 24).padStart(2, '0') + ':' +
          String(Math.floor((t % 3600) / 60)).padStart(2, '0') + ':' +
-         String(t % 60).padStart(2, '0');
+         String(Math.floor(t % 60)).padStart(2, '0');
 }
 
 export function saludo() {

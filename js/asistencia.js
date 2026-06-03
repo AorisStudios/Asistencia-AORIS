@@ -250,7 +250,7 @@ export function intentarMarcar() {
 
   const d = estado[authModule.cur];
   const tipo = (d && d.entrada) ? 'salida' : 'entrada';
-  const hora = fmtHM(gmt5());
+  const hora = fmt(gmt5());
 
   if (tipo === 'entrada') {
     ejecutarMarca('entrada', hora);

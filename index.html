@@ -61,7 +61,7 @@
       <div class="ao-modal-title" id="modal-title"></div>
       <div class="ao-modal-sub" id="modal-sub"></div>
       <div class="ao-modal-cards" id="modal-cards"></div>
-      <div onclick="document.getElementById('overlay-confirm').classList.remove('show')" style="padding:14px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Entendido ✓</div>
+      <div onclick="cerrarModalConfirm()" style="padding:14px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Entendido ✓</div>
     </div>
   </div>
 
@@ -250,7 +250,7 @@
         <button class="jefe-close-btn" onclick="cerrarJefe()">✕ Salir</button>
       </div>
       <div id="jresults"></div>
-      <div class="jefe-table-wrap"><table class="jefe-table"><thead><tr><th>Empleado</th><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>ISP</th><th>Dispositivo</th><th>Alerta</th></tr></thead><tbody id="jefe-tbody"></tbody></table></div>
+      <div class="jefe-table-wrap"><table class="jefe-table"><thead><tr><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Dispositivo</th><th>Alerta</th></tr></thead><tbody id="jefe-tbody"></tbody></table></div>
     </div>
   </div>
 

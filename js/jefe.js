@@ -6,7 +6,7 @@ import { JAVBG, JAVS } from './config.js';
 
 let jefeLogoClicks = 0;
 let jefeLogoTimer = null;
-let jF = { fecha: 'hoy', emp: 'todos', est: 'todos' };
+let jF = { fecha: 'semana', emp: 'todos', est: 'todos' };
 
 export function jefeLogoClick() {
   jefeLogoClicks++;
@@ -65,14 +65,14 @@ function jRender() {
       const fecha = (col[2] || '').trim().replace(/"/g, '');
       const entrada = (col[3] || '').trim().replace(/"/g, '');
       const salida = (col[4] || '').trim().replace(/"/g, '');
-      const isp = (col[6] || '').trim().replace(/"/g, '');
-      const disp = (col[7] || '').trim().replace(/"/g, '');
+      const dispEntrada = (col[6] || '').trim().replace(/"/g, '');  // Dispositivo Entrada
+      const dispSalida = (col[7] || '').trim().replace(/"/g, '');   // Dispositivo Salida
       const alerta = (col[8] || '').trim().replace(/"/g, '');
       if (!nombre || !entrada) return;
       // Formatear hora correctamente (HH:MM)
       const entradaFmt = entrada.length >= 5 ? entrada.slice(0, 5) : entrada;
       const salidaFmt = salida.length >= 5 ? salida.slice(0, 5) : salida;
-      rows.push({ nombre, fecha, entrada: entradaFmt, salida: salidaFmt, isp, disp, alerta });
+      rows.push({ nombre, fecha, entrada: entradaFmt, salida: salidaFmt, dispEntrada, dispSalida, alerta });
     });
     const semana = [];
     for (let i = 0; i < 7; i++) { const d = new Date(now); d.setDate(d.getDate() - i); semana.push(fmtFecha(d)); }
@@ -85,7 +85,20 @@ function jRender() {
     document.getElementById('jresults').textContent = rows.length + ' registro' + (rows.length !== 1 ? 's' : '');
     const tb = document.getElementById('jefe-tbody');
     if (!rows.length) { tb.innerHTML = `<tr><td colspan="8" class="jefe-empty-row">Sin registros</td></tr>`; return; }
-    tb.innerHTML = rows.map((r, i) => {
+
+    // Agrupar por fecha y agregar separadores visuales
+    let html = '';
+    let fechaActual = null;
+    let bgAlterno = false;
+
+    rows.forEach((r, i) => {
+      // Agregar separador de fecha si cambió
+      if (r.fecha !== fechaActual) {
+        fechaActual = r.fecha;
+        bgAlterno = !bgAlterno;
+        html += `<tr style="background:${bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)'}"><td colspan="8" style="padding:12px 16px;font-size:13px;font-weight:800;color:#FFD600;border:none;">📅 ${jFmtFecha(r.fecha)}</td></tr>`;
+      }
+
       const rc = jRowClass(r);
       const h = jHoras(r.entrada, r.salida);
       const hc = rc === 'jrow-alert' ? '#FF6B6B' : rc === 'jrow-early' ? '#FFB347' : h.includes('turno') ? '#FFD600' : '#4ADE80';
@@ -96,12 +109,21 @@ function jRender() {
       const avBg = JAVBG[r.nombre] || '#eee';
       const salidaHtml = r.salida ? `<span class="jbdg ${sb}">${r.salida}</span>` : '<span class="jbdg jbdg-x">En turno</span>';
       const horasHtml = h === '—' ? '<span style="color:#FFD600;font-weight:800;">En turno 🟡</span>' : `<span style="font-weight:800;color:${hc};">${h}</span>`;
-      return `<tr class="${rc}"><td><div class="jemp-cell"><div class="jav-sm" style="background:${avBg};border:2px solid #444;">${avHtml}</div><span class="jemp-name">${r.nombre}</span></div></td><td style="color:#bbb;">${jFmtFecha(r.fecha)}</td><td><span class="jbdg jbdg-g">${r.entrada || '—'}</span></td><td>${salidaHtml}</td><td>${horasHtml}</td><td style="font-size:11px;">${r.isp || '—'}</td><td><button class="jdisp-btn" onclick="mostrarDispositivo(this)" data-dispositivo="${(r.disp || '—').replace(/"/g, '&quot;')}">🖥️ ver</button></td><td><span class="jbdg ${ab}">${at}</span></td></tr>`;
-    }).join('');
+      const bgRow = bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)';
+
+      // Botones de dispositivo entrada y salida
+      const btnEntrada = r.dispEntrada ? `<button class="jdisp-btn" onclick="mostrarDispositivo(this, 'entrada')" data-dispositivo="${r.dispEntrada.replace(/"/g, '&quot;')}">🖥️ Ent</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Ent</button>';
+      const btnSalida = r.dispSalida ? `<button class="jdisp-btn" onclick="mostrarDispositivo(this, 'salida')" data-dispositivo="${r.dispSalida.replace(/"/g, '&quot;')}">🖥️ Sal</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Sal</button>';
+      const dispHtml = `<div style="display:flex;gap:6px;">${btnEntrada}${btnSalida}</div>`;
+
+      html += `<tr class="${rc}" style="background:${bgRow}"><td><div class="jemp-cell"><div class="jav-sm" style="background:${avBg};border:2px solid #444;">${avHtml}</div><span class="jemp-name">${r.nombre}</span></div></td><td><span class="jbdg jbdg-g">${r.entrada || '—'}</span></td><td>${salidaHtml}</td><td>${horasHtml}</td><td>${dispHtml}</td><td><span class="jbdg ${ab}">${at}</span></td></tr>`;
+    });
+
+    tb.innerHTML = html;
   }).catch(() => { document.getElementById('jefe-tbody').innerHTML = `<tr><td colspan="8" class="jefe-empty-row">❌ Error al cargar</td></tr>`; });
 }
 
-export function mostrarDispositivo(boton) {
+export function mostrarDispositivo(boton, tipo = 'entrada') {
   const dispositivo = boton.getAttribute('data-dispositivo');
 
   // Cerrar si ya existe un popover abierto
@@ -111,14 +133,29 @@ export function mostrarDispositivo(boton) {
     return;
   }
 
+  // Parsear dispositivo y extraer ISP
   const lineas = dispositivo.split(' · ');
+  let isp = '—';
+  let gpu = lineas[0] || '—';
+  let cores = lineas[1] || '—';
+  let ram = lineas[2] || '—';
+  let so = lineas[3] || '—';
+  let res = lineas[4] || '—';
+  let nav = lineas[5] || '—';
+
+  // Buscar ISP en la última línea (formato: "ISP: nombre")
+  if (lineas[6] && lineas[6].includes('ISP:')) {
+    isp = lineas[6].replace('ISP:', '').trim();
+  }
+
   const items = {
-    'GPU': lineas[0] || '—',
-    'Cores': lineas[1] || '—',
-    'RAM': lineas[2] || '—',
-    'SO': lineas[3] || '—',
-    'Res': lineas[4] || '—',
-    'Nav': lineas[5] || '—'
+    '📍 ISP': isp,
+    'GPU': gpu,
+    'Cores': cores,
+    'RAM': ram,
+    'SO': so,
+    'Res': res,
+    'Nav': nav
   };
 
   let html = '';
@@ -154,9 +191,10 @@ export function mostrarDispositivo(boton) {
     transition: opacity 0.3s ease-in-out;
   `;
 
+  const tituloTipo = tipo === 'entrada' ? 'Dispositivo Entrada' : 'Dispositivo Salida';
   popover.innerHTML = `
     <div style="margin-bottom:16px;">
-      <span style="font-size:14px;font-weight:800;color:#FFD600;text-transform:uppercase;">Dispositivo</span>
+      <span style="font-size:14px;font-weight:800;color:#FFD600;text-transform:uppercase;">${tituloTipo}</span>
     </div>
     <div>${html}</div>
   `;

@@ -2,7 +2,7 @@
 
 import { PINS, EMPS } from './config.js';
 import { getDispositivoInfo, getFingerprint } from './fingerprint.js';
-import { simpleHash } from './utils.js';
+import { simpleHash, addH, getShiftHours, fmtHM, gmt5 } from './utils.js';
 import { ipInfo } from './api.js';
 import { sonidoError, sonidoPIN } from './audio.js';
 
@@ -70,12 +70,33 @@ export function setBtnMarca() {
   const tipo = (d && d.entrada) ? 'salida' : 'entrada';
   const btn = document.getElementById('mark-btn');
 
+  // Llenar saludo
+  const welTitle = document.getElementById('wel-title');
+  const welSub = document.getElementById('wel-sub');
+
   if (tipo === 'entrada') {
-    btn.style.cssText = 'display:block;margin-top:6px;cursor:pointer;';
-    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" onclick="intentarMarcar()" style="cursor:pointer;">✅ Marcar entrada</div></div>';
+    welTitle.textContent = '¡Bienvenido, ' + cur + '! 👋';
+    welSub.textContent = 'Estás listo para marcar tu entrada';
+    btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;';
+    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" onclick="intentarMarcar()" style="cursor:pointer;">✅ MARCAR ENTRADA</div></div>';
   } else {
-    btn.style.cssText = 'display:block;margin-top:6px;cursor:pointer;';
-    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" onclick="intentarMarcar()" style="cursor:pointer;">🚪 Marcar salida</div></div>';
+    welTitle.textContent = '¡Hasta luego, ' + cur + '! 👋';
+
+    // Salida disponible a partir de las 1 PM (13:00)
+    const horaActual = gmt5();
+    const esAntesDelasUnaPM = horaActual.getHours() < 13;
+
+    if (esAntesDelasUnaPM) {
+      // Botón BLOQUEADO antes de 1 PM
+      welSub.textContent = '📍 Salida disponible a partir de la 1 PM';
+      btn.style.cssText = 'display:block;margin:20px auto;cursor:not-allowed;text-align:center;max-width:300px;opacity:0.5;pointer-events:none;';
+      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" style="cursor:not-allowed;">🚪 MARCAR SALIDA</div></div>';
+    } else {
+      // Botón HABILITADO desde 1 PM
+      welSub.textContent = 'Marca tu salida para terminar el turno';
+      btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;opacity:1;pointer-events:auto;';
+      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" onclick="intentarMarcar()" style="cursor:pointer;">🚪 MARCAR SALIDA</div></div>';
+    }
   }
 }
 

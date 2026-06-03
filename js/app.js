@@ -8,7 +8,7 @@ import { cargarLocal, guardarLocal, estado } from './storage.js';
 import { typeWriter, aplicarTema, actualizarCountdown } from './ui.js';
 import { startExperience } from './splash.js';
 import { selEmp, verPin, setBtnMarca, cur, pinOk } from './auth.js';
-import { refTabla, cargarDesdeSheet, updateProgress, cerrarBye, intentarMarcar } from './asistencia.js';
+import { refTabla, cargarDesdeSheet, updateProgress, cerrarBye, intentarMarcar, cerrarModalConfirm } from './asistencia.js';
 import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo } from './jefe.js';
 import { abrirHistorial } from './historial.js';
 
@@ -25,6 +25,7 @@ window.mostrarDispositivo = mostrarDispositivo;
 window.cerrarDispositivo = cerrarDispositivo;
 window.abrirHistorial = abrirHistorial;
 window.cerrarBye = cerrarBye;
+window.cerrarModalConfirm = cerrarModalConfirm;
 window.estado = estado;
 
 function tick() {

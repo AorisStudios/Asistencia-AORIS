@@ -48,7 +48,7 @@ export function refTabla() {
         const mins = minutosTemprano(d.entrada, d.salida, n);
         if (s) s.innerHTML = mins > 0 ? `<span class="ao-bdg hora-temprano">🔴 ${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
       } else {
-        if (s) s.innerHTML = '';
+        if (s) s.innerHTML = '<span class="ao-bdg" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">---</span>';
         if (st) { st.textContent = 'Entrada marcada'; st.style.color = ''; }
         if (card) card.classList.remove('done');
       }
@@ -75,6 +75,8 @@ export function refTabla() {
       if (d && d.salida) {
         const mins = minutosTemprano(d.entrada, d.salida, n);
         salidaHtml = mins > 0 ? `<span class="ao-bdg hora-temprano">🔴 ${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
+      } else {
+        salidaHtml = `<span class="ao-bdg" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">---</span>`;
       }
       html += `<tr>
         <td style="border-bottom:none;padding:10px 16px 4px;vertical-align:middle;">
@@ -107,8 +109,17 @@ export function cargarDesdeSheet() {
         const entrada = (c[3] || '').trim().replace(/"/g, '');
         const salida = (c[4] || '').trim().replace(/"/g, '');
         const temprano = (c[5] || '').trim().replace(/"/g, '');
-        if (EMPS.includes(nombre) && fecha === hoy && entrada && !estado[nombre]) {
-          estado[nombre] = { entrada, salida, temprano };
+        if (EMPS.includes(nombre) && fecha === hoy && entrada) {
+          // Actualizar o crear estado, pero preservar datos locales si es necesario
+          if (!estado[nombre]) {
+            estado[nombre] = { entrada, salida, temprano };
+          } else {
+            // Actualizar solo si el CSV tiene datos más recientes (salida)
+            if (salida && !estado[nombre].salida) {
+              estado[nombre].salida = salida;
+              estado[nombre].temprano = temprano;
+            }
+          }
         }
       });
       guardarLocal();
@@ -227,6 +238,11 @@ export function elegirRazon(tipo, opcion, salidaHora, nombreEmpleado) {
 
 export function cerrarBye() {
   document.getElementById('modal-bye').classList.remove('show');
+}
+
+export function cerrarModalConfirm() {
+  document.getElementById('overlay-confirm').classList.remove('show');
+  authModule.setBtnMarca();
 }
 
 export function intentarMarcar() {

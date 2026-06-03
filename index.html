@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AORIS STUDIOS · Asistencia</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'><rect width='72' height='72' rx='18' fill='%23FFD600'/><rect x='10' y='10' width='22' height='22' rx='4' fill='%23111'/><rect x='40' y='10' width='22' height='22' rx='4' fill='%23111'/><rect x='10' y='40' width='22' height='22' rx='4' fill='%23111'/><circle cx='51' cy='51' r='11' fill='%23111'/><polygon points='47,46 47,56 57,51' fill='%23FFD600'/></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="tema-dia" id="body">
+
+<!-- ENTRY SCREEN -->
+<div id="entry-screen" onclick="startExperience()">
+  <div id="entry-grid"></div>
+  <div id="entry-content">
+    <div id="entry-icon">
+      <svg width="80" height="80" viewBox="0 0 72 72" fill="none">
+        <rect width="72" height="72" rx="18" fill="#FFD600"/>
+        <rect x="10" y="10" width="22" height="22" rx="4" fill="#111"/>
+        <rect x="40" y="10" width="22" height="22" rx="4" fill="#111"/>
+        <rect x="10" y="40" width="22" height="22" rx="4" fill="#111"/>
+        <circle cx="51" cy="51" r="11" fill="#111"/>
+        <polygon points="47,46 47,56 57,51" fill="#FFD600"/>
+      </svg>
+    </div>
+    <div id="entry-phrase"></div>
+    <div id="entry-tap"><div id="entry-tap-dot"></div>TOCA PARA ENTRAR</div>
+  </div>
+</div>
+
+<!-- SPLASH SCREEN -->
+<div id="splash-screen">
+  <div id="grid-bg"></div>
+  <div id="splash-content">
+    <svg id="splash-icon" viewBox="0 0 72 72" fill="none">
+      <rect width="72" height="72" rx="18" fill="#FFD600"/>
+      <rect x="10" y="10" width="22" height="22" rx="4" fill="#111"/>
+      <rect x="40" y="10" width="22" height="22" rx="4" fill="#111"/>
+      <rect x="10" y="40" width="22" height="22" rx="4" fill="#111"/>
+      <circle cx="51" cy="51" r="11" fill="#111"/>
+      <polygon points="47,46 47,56 57,51" fill="#FFD600"/>
+    </svg>
+    <div id="aoris-letters">
+      <span class="a-letter">A</span><span class="a-letter">O</span><span class="a-letter">R</span><span class="a-letter">I</span><span class="a-letter">S</span>
+    </div>
+    <div id="studios-text">STUDIOS</div>
+    <div id="splash-line"></div>
+    <div id="splash-day"></div>
+    <div id="splash-msg"></div>
+    <div id="splash-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>
+</div>
+
+<!-- APP ROOT (estructura HTML completa del original omitida por brevedad) -->
+<div id="app-root">
+  <!-- Modal confirmación entrada/salida -->
+  <div class="ao-overlay" id="overlay-confirm">
+    <div class="ao-modal">
+      <div class="ao-modal-av" id="modal-av"></div>
+      <div class="ao-modal-title" id="modal-title"></div>
+      <div class="ao-modal-sub" id="modal-sub"></div>
+      <div class="ao-modal-cards" id="modal-cards"></div>
+      <div onclick="document.getElementById('overlay-confirm').classList.remove('show')" style="padding:14px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Entendido ✓</div>
+    </div>
+  </div>
+
+  <!-- Modal alerta salida anticipada -->
+  <div class="ao-overlay" id="overlay-alerta">
+    <div class="ao-modal">
+      <div style="font-size:40px;margin-bottom:8px;">🙅</div>
+      <div class="alerta-nombre" id="alerta-nombre"></div>
+      <div class="alerta-txt-top">Aún te faltan...</div>
+      <div class="countdown-wrap">
+        <div class="countdown-unit"><div class="countdown-val" id="cd-h">00</div><div class="countdown-lbl">Horas</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="countdown-val" id="cd-m">00</div><div class="countdown-lbl">Min</div></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><div class="countdown-val" id="cd-s">00</div><div class="countdown-lbl">Seg</div></div>
+      </div>
+      <div class="alerta-txt-bot">...para completar tu turno de hoy.</div>
+      <div style="display:flex;gap:10px;">
+        <div onclick="document.getElementById('overlay-alerta').classList.remove('show')" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#F5F0E8;color:#111;box-shadow:3px 3px 0 #444;">← Volver</div>
+        <div onclick="elegirRazon('anticipada',1)" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#FF4444;color:#fff;box-shadow:3px 3px 0 #aa0000;">Salir igual</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ao-wrap">
+    <div class="ao-card">
+      <div class="ao-header">
+        <div class="ao-logo" onclick="jefeLogoClick()" style="cursor:default;" id="ao-logo-click">
+          <div class="ao-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="2" y="2" width="7" height="7" rx="1" fill="#FFD600"/>
+              <rect x="11" y="2" width="7" height="7" rx="1" fill="#FFD600"/>
+              <rect x="2" y="11" width="7" height="7" rx="1" fill="#FFD600"/>
+              <circle cx="14.5" cy="14.5" r="3.5" fill="#FFD600"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ao-logo-text">AORIS STUDIOS</div>
+            <div class="ao-logo-sub">Control de asistencia</div>
+          </div>
+        </div>
+        <div class="ao-clock-row">
+          <div>
+            <div class="ao-clock" id="clock">--:--:--</div>
+            <div class="ao-date" id="fecha">--</div>
+          </div>
+          <div class="ao-clock-right">
+            <div class="ao-sun-moon" id="sun-moon">☀️</div>
+            <div class="ao-clock-badge">GMT-5 · LIMA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ao-body">
+        <div class="ao-label">¿Quién eres?</div>
+        <div class="ao-employees">
+          <div class="ao-emp" id="emp-Ronald" onclick="if(!estado['Ronald']||!estado['Ronald'].salida)selEmp('Ronald')">
+            <div class="ao-emp-hdr ao-emp-hdr-ronald">
+              <div class="ao-avatar" style="background:#EDE0FF;">
+                <svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24 Q25 26.5 28 24" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="20" y="30" width="10" height="6" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="25" y1="30" x2="25" y2="36" stroke="#111" stroke-width="1.5"/></svg>
+              </div>
+              <div class="ao-emp-name">Ronald</div>
+              <div class="ao-emp-st" id="st-Ronald">Sin registro hoy</div>
+              <div onclick="event.stopPropagation();abrirHistorial('Ronald','#C4A8FF')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+            </div>
+            <div class="ao-emp-body">
+              <div class="ao-emp-times">
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🕘 Entrada</span><span class="ao-bdg none" id="tr-Ronald-e"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🏁 Sale a las</span><span class="ao-bdg none" id="tr-Ronald-p"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🚪 Salida</span><div id="tr-Ronald-s"></div></div>
+              </div>
+              <div class="ao-emp-prog" id="prog-Ronald">
+                <div class="ao-emp-prog-lbl"><span id="prog-pct-Ronald"></span><span id="prog-eta-Ronald"></span></div>
+                <div class="ao-emp-prog-row"><div class="ao-emp-prog-track"><div class="ao-emp-prog-fill" id="prog-fill-Ronald" style="width:0%"><div class="ao-emp-prog-rocket" id="prog-rocket-Ronald" style="display:none">🚀</div></div></div><span class="ao-emp-prog-moon">🌕</span></div>
+                <div class="ao-emp-prog-footer"><span class="ao-emp-prog-time" id="prog-t1-Ronald"></span><span class="ao-emp-prog-early" id="prog-t2-Ronald"></span><span class="ao-emp-prog-time" id="prog-t3-Ronald"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brandon y Mathias omitidos por brevedad (estructura similar a Ronald) -->
+          <div class="ao-emp" id="emp-Brandon" onclick="if(!estado['Brandon']||!estado['Brandon'].salida)selEmp('Brandon')">
+            <div class="ao-emp-hdr ao-emp-hdr-brandon">
+              <div class="ao-avatar" style="background:#FFE8C4;"><svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><path d="M16 17 Q25 10 34 17" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="19" y="30" width="12" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="25" cy="33.5" r="1.5" fill="#111"/></svg></div>
+              <div class="ao-emp-name">Brandon</div>
+              <div class="ao-emp-st" id="st-Brandon">Sin registro hoy</div>
+              <div onclick="event.stopPropagation();abrirHistorial('Brandon','#FFBC6B')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+            </div>
+            <div class="ao-emp-body">
+              <div class="ao-emp-times">
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🕘 Entrada</span><span class="ao-bdg none" id="tr-Brandon-e"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🏁 Sale a las</span><span class="ao-bdg none" id="tr-Brandon-p"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🚪 Salida</span><div id="tr-Brandon-s"></div></div>
+              </div>
+              <div class="ao-emp-prog" id="prog-Brandon">
+                <div class="ao-emp-prog-lbl"><span id="prog-pct-Brandon"></span><span id="prog-eta-Brandon"></span></div>
+                <div class="ao-emp-prog-row"><div class="ao-emp-prog-track"><div class="ao-emp-prog-fill" id="prog-fill-Brandon" style="width:0%"><div class="ao-emp-prog-rocket" id="prog-rocket-Brandon" style="display:none">🚀</div></div></div><span class="ao-emp-prog-moon">🌕</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ao-emp" id="emp-Mathias" onclick="if(!estado['Mathias']||!estado['Mathias'].salida)selEmp('Mathias')">
+            <div class="ao-emp-hdr ao-emp-hdr-mathias">
+              <div class="ao-avatar" style="background:#D4F5C4;"><svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#D4F5C4"/><circle cx="25" cy="20" r="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><path d="M16 14 Q25 8 34 14" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="18" y="30" width="14" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="22" cy="33.5" r="1.5" fill="#111"/><circle cx="28" cy="33.5" r="1.5" fill="#111"/></svg></div>
+              <div class="ao-emp-name">Mathias</div>
+              <div class="ao-emp-st" id="st-Mathias">Sin registro hoy</div>
+              <div onclick="event.stopPropagation();abrirHistorial('Mathias','#5BC8F5')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+            </div>
+            <div class="ao-emp-body">
+              <div class="ao-emp-times">
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🕘 Entrada</span><span class="ao-bdg none" id="tr-Mathias-e"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🏁 Sale a las</span><span class="ao-bdg none" id="tr-Mathias-p"></span></div>
+                <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🚪 Salida</span><div id="tr-Mathias-s"></div></div>
+              </div>
+              <div class="ao-emp-prog" id="prog-Mathias">
+                <div class="ao-emp-prog-lbl"><span id="prog-pct-Mathias"></span><span id="prog-eta-Mathias"></span></div>
+                <div class="ao-emp-prog-row"><div class="ao-emp-prog-track"><div class="ao-emp-prog-fill" id="prog-fill-Mathias" style="width:0%"><div class="ao-emp-prog-rocket" id="prog-rocket-Mathias" style="display:none">🚀</div></div></div><span class="ao-emp-prog-moon">🌕</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ao-pin-box" id="pin-box">
+          <div class="ao-pin-greet" id="pin-greet"></div>
+          <div class="ao-pin-lbl">Ingresa tu PIN</div>
+          <input class="ao-pin-inp" type="password" inputmode="numeric" maxlength="4" id="pin-inp" placeholder="••••" onkeyup="if(event.key==='Enter')verPin()"/>
+          <div class="ao-pin-err" id="pin-err">PIN incorrecto — intenta de nuevo</div>
+          <div onclick="verPin()" style="margin-top:12px;padding:13px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Confirmar PIN →</div>
+        </div>
+
+        <div class="ao-welcome" id="welcome">
+          <div class="ao-wel-title" id="wel-title"></div>
+          <div class="ao-wel-sub" id="wel-sub"></div>
+        </div>
+
+        <div id="mark-btn" style="display:none;margin-top:6px;padding:16px;border:3px solid #111;border-radius:12px;font-size:16px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;"></div>
+
+        <hr class="ao-divider">
+        <div class="estado-header-v2">
+          <div class="estado-titulo">📊 ESTADO DEL DÍA</div>
+        </div>
+        <table class="ao-table">
+          <thead><tr><th>Empleado</th><th style="text-align:center">🕘 Entrada</th><th style="text-align:center">🏁 Sale a las</th><th style="text-align:center">🚪 Salida real</th></tr></thead>
+          <tbody id="estado-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ao-footer">AORIS STUDIOS · Sistema de asistencia · By Deiv Rivera</div>
+  </div>
+
+  <!-- Historial modal omitido por brevedad -->
+  <div class="hist-overlay" id="hist-overlay">
+    <div class="hist-modal">
+      <div class="hist-header">
+        <div class="hist-title" id="hist-title">📊 Rendimiento del mes</div>
+        <div class="hist-close" onclick="document.getElementById('hist-overlay').classList.remove('show')">✕</div>
+      </div>
+      <div class="hist-stats">
+        <div class="hist-stat"><div class="hist-stat-val" id="hist-dias">—</div><div class="hist-stat-lbl">Días</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" id="hist-prom">—</div><div class="hist-stat-lbl">Promedio</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" id="hist-comp">—</div><div class="hist-stat-lbl">Completos</div></div>
+        <div class="hist-stat"><div class="hist-stat-val" id="hist-ant">—</div><div class="hist-stat-lbl">Anticipadas</div></div>
+      </div>
+      <table class="ao-table" style="min-width:480px;">
+        <thead><tr><th>📅 Fecha</th><th>📥 Entrada</th><th>📤 Salida</th><th>⏱️ Horas</th><th>📊 Turno</th><th>Estado</th></tr></thead>
+        <tbody id="hist-body"><tr><td colspan="6" style="text-align:center;padding:24px;">⏳ Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Jefe (Admin) view omitido por brevedad -->
+  <div id="jefe-pin-overlay">
+    <div class="jefe-pin-modal">
+      <div style="font-size:44px;margin-bottom:14px;">🔐</div>
+      <div style="font-size:18px;font-weight:800;color:#FFD600;margin-bottom:6px;">Acceso restringido</div>
+      <div style="font-size:13px;color:#666;margin-bottom:20px;">Ingresa el PIN de administrador</div>
+      <input class="jefe-pin-inp" type="password" inputmode="numeric" maxlength="4" id="jefe-pin-inp" placeholder="••••" onkeyup="if(event.key==='Enter')verificarPinJefe()"/>
+      <div class="jefe-pin-err" id="jefe-pin-err">PIN incorrecto</div>
+      <div class="jefe-pin-btn" onclick="verificarPinJefe()">Entrar →</div>
+    </div>
+  </div>
+
+  <div id="jefe-overlay">
+    <div class="jefe-wrap">
+      <div class="jefe-header">
+        <div><div class="jefe-title">👀 Vista de Jefe</div><div class="jefe-sub">AORIS STUDIOS · Registros de asistencia</div></div>
+        <button class="jefe-close-btn" onclick="cerrarJefe()">✕ Salir</button>
+      </div>
+      <div id="jresults"></div>
+      <div class="jefe-table-wrap"><table class="jefe-table"><thead><tr><th>Empleado</th><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>ISP</th><th>Dispositivo</th><th>Alerta</th></tr></thead><tbody id="jefe-tbody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Modal bye (salida) omitido -->
+  <div class="bye-overlay" id="modal-bye">
+    <div class="bye-modal" id="bye-modal-inner">
+      <div class="bye-avatar" id="bye-avatar"></div>
+      <div class="bye-title" id="bye-title"></div>
+      <div class="bye-msg" id="bye-msg"></div>
+      <div class="bye-btn" onclick="cerrarBye()">¡Hasta luego! 👋</div>
+    </div>
+  </div>
+
+  <!-- Modal Dispositivo -->
+  <div class="disp-modal-overlay" id="disp-modal-overlay" onclick="if(event.target.id === 'disp-modal-overlay') cerrarDispositivo()">
+    <div class="disp-modal" id="disp-modal">
+      <div class="disp-modal-close" onclick="cerrarDispositivo()">✕</div>
+      <div class="disp-modal-content" id="disp-modal-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Import ES Modules -->
+<script type="module">
+  import { iniciarApp } from './js/app.js';
+  window.iniciarApp = iniciarApp;
+  // Auto-init after splash
+</script>
+
+</body>
+</html>

@@ -4,15 +4,67 @@ export const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztlVQwHtdmZk
 export const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_A_UXmqrTCgWEownfi5WyM42twXBSax-9lw_ugukHjryJ0H9j6CPuqT64VEf60mhen90C_yNkYqP/pub?output=csv";
 export const ISP_AUTORIZADO = "RED INTERCABLE PERU SAC";
 
-export const PINS = {
-  Ronald: '2323',
-  Brandon: '1456',
-  Mathias: '2867'
-};
-
-export const EMPS = ['Ronald', 'Brandon', 'Mathias'];
 export const STORAGE_KEY = 'aoris_estado_v10';
 export const JEFE_PIN = '1215';
+
+// ============================================================
+// FUENTE ÚNICA DE VERDAD: todos los datos por empleado en un solo lugar.
+// Para agregar/editar un empleado, edita SOLO este arreglo.
+//   - pin:        PIN de marcado
+//   - turnoHoras: duración del turno en horas
+//   - validaISP:  si false, no se valida el ISP (sin restricciones)
+//   - color:      color principal del empleado
+//   - bgColor:    fondo del avatar
+//   - avatar:     SVG del avatar (76px)
+//   - avatarMini: SVG del avatar para vista de jefe (32px)
+// ============================================================
+export const EMPLEADOS = [
+  {
+    nombre: 'Ronald',
+    pin: '2323',
+    turnoHoras: 7.5,
+    validaISP: true,
+    color: '#C4A8FF',
+    bgColor: '#EDE0FF',
+    avatar: `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24 Q25 26.5 28 24" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="20" y="30" width="10" height="6" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="25" y1="30" x2="25" y2="36" stroke="#111" stroke-width="1.5"/></svg>`,
+    avatarMini: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/></svg>`
+  },
+  {
+    nombre: 'Brandon',
+    pin: '1456',
+    turnoHoras: 7.5,
+    validaISP: true,
+    color: '#4ECDC4',
+    bgColor: '#FFE8C4',
+    avatar: `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><path d="M16 17 Q25 10 34 17" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="19" y="30" width="12" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="25" cy="33.5" r="1.5" fill="#111"/></svg>`,
+    avatarMini: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/></svg>`
+  },
+  {
+    nombre: 'Mathias',
+    pin: '2867',
+    turnoHoras: 9,
+    validaISP: false,
+    color: '#5BC8F5',
+    bgColor: '#C4F0FF',
+    avatar: `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#C4F0FF"/><circle cx="25" cy="20" r="9" fill="#5BC8F5" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#5BC8F5" stroke="#111" stroke-width="2"/><path d="M16 14 Q25 8 34 14" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`,
+    avatarMini: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#D4F5C4"/><circle cx="25" cy="20" r="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/></svg>`
+  }
+];
+
+// Helper: obtener el objeto de un empleado por nombre
+export function getEmpleado(nombre) {
+  return EMPLEADOS.find(e => e.nombre === nombre) || null;
+}
+
+// ---- Estructuras derivadas (compatibilidad con el resto de módulos) ----
+// No editar a mano: se calculan a partir de EMPLEADOS.
+export const EMPS = EMPLEADOS.map(e => e.nombre);
+export const PINS = Object.fromEntries(EMPLEADOS.map(e => [e.nombre, e.pin]));
+export const EMP_COLORS = Object.fromEntries(EMPLEADOS.map(e => [e.nombre, e.color]));
+export const AVBG = Object.fromEntries(EMPLEADOS.map(e => [e.nombre, e.bgColor]));
+export const JAVBG = AVBG;
+export const AVS = Object.fromEntries(EMPLEADOS.map(e => [e.nombre, e.avatar]));
+export const JAVS = Object.fromEntries(EMPLEADOS.map(e => [e.nombre, e.avatarMini]));
 
 export const FRASES = [
   "Empezamos un nuevo día ☀️",
@@ -36,38 +88,6 @@ export const FRASES = [
   "AORIS no para. Nunca para 🏆",
   "Respira. Enfócate. Crea. 🎨"
 ];
-
-export const AVS_MATHIAS = `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#C4F0FF"/><circle cx="25" cy="20" r="9" fill="#5BC8F5" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#5BC8F5" stroke="#111" stroke-width="2"/><path d="M16 14 Q25 8 34 14" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>`;
-
-export const AVS = {
-  Mathias: AVS_MATHIAS,
-  Ronald: `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24 Q25 26.5 28 24" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="20" y="30" width="10" height="6" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="25" y1="30" x2="25" y2="36" stroke="#111" stroke-width="1.5"/></svg>`,
-  Brandon: `<svg width="76" height="76" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><path d="M16 17 Q25 10 34 17" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="19" y="30" width="12" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="25" cy="33.5" r="1.5" fill="#111"/></svg>`
-};
-
-export const EMP_COLORS = {
-  Ronald: "#C4A8FF",
-  Brandon: "#4ECDC4",
-  Mathias: "#5BC8F5"
-};
-
-export const AVBG = {
-  Ronald: '#EDE0FF',
-  Brandon: '#FFE8C4',
-  Mathias: '#C4F0FF'
-};
-
-export const JAVBG = {
-  Ronald: '#EDE0FF',
-  Brandon: '#FFE8C4',
-  Mathias: '#C4F0FF'
-};
-
-export const JAVS = {
-  Ronald: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/></svg>`,
-  Brandon: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/></svg>`,
-  Mathias: `<svg width="32" height="32" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#D4F5C4"/><circle cx="25" cy="20" r="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/></svg>`
-};
 
 export const MENSAJES_ANTICIPADA = {
   1: { titulo: "¡Qué crack, {nombre}! 🎉", msg: "Terminaste todo y te lo mereces. ¡Hasta mañana!", confetti: true, angiela: false },

@@ -1,7 +1,7 @@
 // AORIS STUDIOS - Historial Module
 
 import { CSV_URL } from './config.js';
-import { gmt5, fmtFecha, fmtFechaLegible, calcPct, parseCSVLine } from './utils.js';
+import { gmt5, fmtFechaLegible, calcPct, getShiftHours, parseCSVLine } from './utils.js';
 
 let histColorActual = '#C4A8FF';
 
@@ -21,10 +21,10 @@ export function abrirHistorial(nombre, color) {
 }
 
 function renderHistorial(nombre, color) {
-  const hoy = fmtFecha(gmt5());
   const hoyDate = gmt5();
   const mesActual = hoyDate.getMonth();
   const anioActual = hoyDate.getFullYear();
+  const turnoSegs = getShiftHours(nombre) * 3600; // turno real del empleado
 
   fetch(CSV_URL + '&t=' + Date.now())
     .then(r => r.text())
@@ -48,7 +48,6 @@ function renderHistorial(nombre, color) {
           const [eh, em, es] = entrada.split(':').map(Number);
           const [sh, sm, ss] = salida.split(':').map(Number);
           const segs = (sh * 3600 + sm * 60 + ss) - (eh * 3600 + em * 60 + es);
-          const turnoSegs = 7.5 * 3600;
           pct = Math.min(100, Math.max(0, Math.round((segs / turnoSegs) * 100)));
           const hh = Math.floor(segs / 3600), mm = Math.floor((segs % 3600) / 60);
           horas = hh + 'h ' + mm + 'm';

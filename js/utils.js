@@ -1,8 +1,21 @@
 // AORIS STUDIOS - Utility Functions
 
+import { getEmpleado } from './config.js';
+
+// Hora actual en America/Lima como objeto Date "naive":
+// sus getters locales (getHours, getDate, ...) reflejan la hora de Lima
+// independientemente de la zona horaria del equipo. Lima no usa DST.
 export function gmt5() {
-  const n = new Date();
-  return new Date(n.getTime() + n.getTimezoneOffset() * 60000 - 5 * 3600000);
+  const partes = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Lima',
+    year: 'numeric', month: 'numeric', day: 'numeric',
+    hour: 'numeric', minute: 'numeric', second: 'numeric',
+    hour12: false
+  }).formatToParts(new Date());
+  const o = {};
+  for (const p of partes) o[p.type] = p.value;
+  const hora = o.hour === '24' ? 0 : Number(o.hour); // algunos motores devuelven 24 a medianoche
+  return new Date(Number(o.year), Number(o.month) - 1, Number(o.day), hora, Number(o.minute), Number(o.second));
 }
 
 export function fmt(d) {
@@ -26,8 +39,10 @@ export function fmtFecha(d) {
          d.getFullYear();
 }
 
+// Duración del turno del empleado (desde EMPLEADOS, fuente única)
 export function getShiftHours(nombre) {
-  return nombre === 'Mathias' ? 9 : 7.5;
+  const emp = getEmpleado(nombre);
+  return emp ? emp.turnoHoras : 7.5;
 }
 
 export function addH(h, hrs) {

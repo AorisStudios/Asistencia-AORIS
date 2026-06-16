@@ -1,8 +1,8 @@
 // AORIS STUDIOS - Auth Module
 
-import { PINS, EMPS } from './config.js';
+import { PINS, EMPS, getEmpleado } from './config.js';
 import { getDispositivoInfo, getFingerprint } from './fingerprint.js';
-import { simpleHash, addH, getShiftHours, fmtHM, gmt5 } from './utils.js';
+import { simpleHash, gmt5 } from './utils.js';
 import { ipInfo } from './api.js';
 import { sonidoError, sonidoPIN } from './audio.js';
 
@@ -10,7 +10,10 @@ export let cur = null;
 export let pinOk = false;
 
 export function validarPC(nombreEmpleado) {
-  if (nombreEmpleado === 'Mathias') return { ok: true, alerta: '✅ Sin restricciones' };
+  // La obligación de validar ISP viene del dato del empleado (validaISP)
+  const emp = getEmpleado(nombreEmpleado);
+  if (emp && emp.validaISP === false) return { ok: true, alerta: '✅ Sin restricciones' };
+
   const ispDetectado = (ipInfo.isp || '').toUpperCase();
   const ispOk = ispDetectado.includes('INTERCABLE');
   let alertas = [];
@@ -72,38 +75,31 @@ export function setBtnMarca() {
 
   // La GPU ya viene precalentada al cargar la página (warmUpGPU),
   // así que el saludo y el botón se muestran al instante, sin esperas.
-  const delay = 0;
+  const welTitle = document.getElementById('wel-title');
+  const welSub = document.getElementById('wel-sub');
 
-  setTimeout(() => {
-    // Llenar saludo
-    const welTitle = document.getElementById('wel-title');
-    const welSub = document.getElementById('wel-sub');
+  if (tipo === 'entrada') {
+    welTitle.textContent = '¡Bienvenido, ' + cur + '! 👋';
+    welSub.textContent = 'Estás listo para marcar tu entrada';
+    btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;';
+    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" onclick="intentarMarcar()" style="cursor:pointer;">✅ MARCAR ENTRADA</div></div>';
+  } else {
+    welTitle.textContent = '¡Hasta luego, ' + cur + '! 👋';
 
-    if (tipo === 'entrada') {
-      welTitle.textContent = '¡Bienvenido, ' + cur + '! 👋';
-      welSub.textContent = 'Estás listo para marcar tu entrada';
-      btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;';
-      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" onclick="intentarMarcar()" style="cursor:pointer;">✅ MARCAR ENTRADA</div></div>';
+    // Salida disponible a partir de la 1 PM (13:00)
+    const horaActual = gmt5();
+    const esAntesDelasUnaPM = horaActual.getHours() < 13;
+
+    if (esAntesDelasUnaPM) {
+      welSub.textContent = '📍 Salida disponible a partir de la 1 PM';
+      btn.style.cssText = 'display:block;margin:20px auto;cursor:not-allowed;text-align:center;max-width:300px;opacity:0.5;pointer-events:none;';
+      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" style="cursor:not-allowed;">🚪 MARCAR SALIDA</div></div>';
     } else {
-      welTitle.textContent = '¡Hasta luego, ' + cur + '! 👋';
-
-      // Salida disponible a partir de las 1 PM (13:00)
-      const horaActual = gmt5();
-      const esAntesDelasUnaPM = horaActual.getHours() < 13;
-
-      if (esAntesDelasUnaPM) {
-        // Botón BLOQUEADO antes de 1 PM
-        welSub.textContent = '📍 Salida disponible a partir de la 1 PM';
-        btn.style.cssText = 'display:block;margin:20px auto;cursor:not-allowed;text-align:center;max-width:300px;opacity:0.5;pointer-events:none;';
-        btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" style="cursor:not-allowed;">🚪 MARCAR SALIDA</div></div>';
-      } else {
-        // Botón HABILITADO desde 1 PM
-        welSub.textContent = 'Marca tu salida para terminar el turno';
-        btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;opacity:1;pointer-events:auto;';
-        btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" onclick="intentarMarcar()" style="cursor:pointer;">🚪 MARCAR SALIDA</div></div>';
-      }
+      welSub.textContent = 'Marca tu salida para terminar el turno';
+      btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;opacity:1;pointer-events:auto;';
+      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" onclick="intentarMarcar()" style="cursor:pointer;">🚪 MARCAR SALIDA</div></div>';
     }
-  }, delay);
+  }
 }
 
 export function getCurFP() {

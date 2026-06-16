@@ -1,5 +1,7 @@
 // AORIS STUDIOS - UI Module
 
+import { gmt5 } from './utils.js';
+
 export function typeWriter(text, el, speed, onDone) {
   el.innerHTML = '<span id="entry-cursor">|</span>';
   let i = 0;
@@ -17,8 +19,8 @@ export function typeWriter(text, el, speed, onDone) {
 }
 
 export function aplicarTema() {
-  const esDia = new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 5 * 3600000).getHours() >= 6 &&
-                new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 5 * 3600000).getHours() < 18;
+  const h = gmt5().getHours();
+  const esDia = h >= 6 && h < 18;
   if (esDia) {
     document.getElementById('body').className = 'tema-dia';
     document.getElementById('sun-moon').textContent = '☀️';

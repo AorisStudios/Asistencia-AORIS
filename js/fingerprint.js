@@ -17,7 +17,14 @@ export function getFingerprint() {
   return c.join('|');
 }
 
+// Cache de la GPU: se detecta una vez (precalentada al cargar la página)
+// y se reutiliza, evitando esperas artificiales al marcar.
+let _gpuCache = null;
+
 export function getGPU() {
+  if (_gpuCache) return _gpuCache;
+
+  let result = 'Desconocido';
   try {
     const cv = document.createElement('canvas');
     const gl = cv.getContext('webgl') || cv.getContext('experimental-webgl');
@@ -31,18 +38,26 @@ export function getGPU() {
         if (ci > -1 && hi > -1 && hi > ci) r = r.slice(ci + 2, hi).trim();
         else r = r.replace('ANGLE (', '').split(',')[0].trim();
       }
-      return r;
+      result = r || 'Desconocido';
     }
-  } catch (e) {}
-  return 'Desconocido';
+  } catch (e) {
+    console.error('Error obteniendo GPU:', e);
+    return 'Desconocido';
+  }
+
+  // Cachear solo si la detección fue válida (no guardar resultados vacíos)
+  if (result && result !== 'Desconocido' && result !== 'Sin WebGL') {
+    _gpuCache = result;
+  }
+  return result;
+}
+
+// Precalienta la detección de GPU para que esté lista antes de marcar.
+export function warmUpGPU() {
+  return getGPU();
 }
 
 export function getDispositivoInfo() {
-  const gpu = getGPU();
-  const cores = navigator.hardwareConcurrency || '?';
-  const ram = (navigator.deviceMemory || '?') + 'GB';
-  const so = navigator.platform || '?';
-  const res = screen.width + 'x' + screen.height;
-  const nav = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Desconocido';
-  return gpu + ' · ' + cores + ' cores · ' + ram + ' · ' + so + ' · ' + res + ' · ' + nav;
-}
+  try {
+    const gpu = getGPU() || 'Desconocido';
+    const cores = navigator.hardwareConcurrency || '?';

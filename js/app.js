@@ -4,6 +4,7 @@ import { FRASES, EMPS, JEFE_PIN } from './config.js';
 import { gmt5, fmt, fechaL, segundosRestantes } from './utils.js';
 import { resumeAudio } from './audio.js';
 import { obtenerIPInfo } from './api.js';
+import { warmUpGPU } from './fingerprint.js';
 import { cargarLocal, guardarLocal, estado } from './storage.js';
 import { typeWriter, aplicarTema, actualizarCountdown } from './ui.js';
 import { startExperience } from './splash.js';
@@ -71,9 +72,7 @@ window.addEventListener('load', () => {
     });
   }
   obtenerIPInfo();
+  warmUpGPU(); // detectar la GPU temprano para que esté lista al marcar
 });
 
 // Export for debugging and auth - estado es una referencia viva
-window.appState = { get estado() { return estado; }, gmt5, fmt, iniciarApp };
-window.cur = cur;
-window.pinOk = pinOk;

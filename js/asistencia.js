@@ -252,9 +252,11 @@ export function intentarMarcar() {
   const tipo = (d && d.entrada) ? 'salida' : 'entrada';
   const hora = fmt(gmt5());
 
+  // La GPU ya está precalentada (warmUpGPU al cargar), no hace falta esperar.
   if (tipo === 'entrada') {
     ejecutarMarca('entrada', hora);
   } else {
     ejecutarMarca('salida', hora);
   }
 }
+                                                                        

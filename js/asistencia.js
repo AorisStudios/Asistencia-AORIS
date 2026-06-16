@@ -46,7 +46,7 @@ export function refTabla() {
         if (st) { st.textContent = '✓ Completo'; st.style.color = '#4ADE80'; st.style.fontWeight = '700'; }
         if (card) card.classList.add('done');
         const mins = minutosTemprano(d.entrada, d.salida, n);
-        if (s) s.innerHTML = mins > 0 ? `<span class="ao-bdg hora-temprano">🔴 ${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
+        if (s) s.innerHTML = mins > 0 ? `<span class="ao-bdg hora-temprano">${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
       } else {
         if (s) s.innerHTML = '<span class="ao-bdg" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">---</span>';
         if (st) { st.textContent = 'Entrada marcada'; st.style.color = ''; }
@@ -74,7 +74,7 @@ export function refTabla() {
       let salidaHtml = '';
       if (d && d.salida) {
         const mins = minutosTemprano(d.entrada, d.salida, n);
-        salidaHtml = mins > 0 ? `<span class="ao-bdg hora-temprano">🔴 ${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
+        salidaHtml = mins > 0 ? `<span class="ao-bdg hora-temprano">${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
       } else {
         salidaHtml = `<span class="ao-bdg" style="opacity:0.5;cursor:not-allowed;pointer-events:none;">---</span>`;
       }

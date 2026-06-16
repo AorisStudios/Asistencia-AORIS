@@ -24,20 +24,19 @@ export async function obtenerIPInfo() {
 }
 
 export function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, alerta, temprano, fpHash) {
-  return fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      nombre,
-      fecha,
-      hora,
-      tipo,
-      ip: ipInfo.isp || '?',
-      dispositivo,
-      alerta,
-      temprano,
-      fingerprintHash: fpHash
-    })
-  });
-}
+  const isp = (ipInfo && ipInfo.isp) ? ipInfo.isp : '?';
+  const payload = {
+    nombre,
+    fecha,
+    hora,
+    tipo,
+    isp,
+    dispositivo,
+    alerta,
+    temprano,
+    fingerprintHash: fpHash
+  };
+
+  console.log('📤 Enviando payload:', payload);
+  console.log('Dispositivo que se envía:', dispositivo);
+  console.lo

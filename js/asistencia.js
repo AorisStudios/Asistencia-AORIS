@@ -1,11 +1,11 @@
 // AORIS STUDIOS - Asistencia (Attendance) Module
 
 import { EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA, CSV_URL } from './config.js';
-import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcPct2, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor, parseCSVLine } from './utils.js';
-import { sonidoEntrada, sonidoSalida, sonidoAlerta } from './audio.js';
+import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor, parseCSVLine } from './utils.js';
+import { sonidoEntrada, sonidoSalida } from './audio.js';
 import { estado, guardarLocal } from './storage.js';
 import * as authModule from './auth.js';
-import { enviarMarquilla, ipInfo } from './api.js';
+import { enviarMarquilla } from './api.js';
 
 export function updateProgress(nombre) {
   const d = estado[nombre];
@@ -259,4 +259,3 @@ export function intentarMarcar() {
     ejecutarMarca('salida', hora);
   }
 }
-                                                                        

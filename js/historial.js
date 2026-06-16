@@ -84,9 +84,6 @@ function renderHistorial(nombre, color) {
       let html = '';
       registros.forEach(r => {
         const barColor = r.pct >= 100 ? '#BDEFC4' : r.est === 'tardia' ? '#4A9EFF' : '#FFB347';
-        const salidaHtml = r.salida === '—' ? '<span style="color:var(--txt3);">—</span>' :
-          r.est === 'anticipada' ? '<span class="ao-bdg hora-temprano" style="font-size:11px;">' + r.salida + '</span>' :
-          '<span class="ao-bdg in" style="font-size:11px;">' + r.salida + '</span>';
         const estadoHtml = r.est === 'completo' ? '<span style="color:#2d6a4f;font-weight:800;font-size:11px;">✅ Completo</span>' :
           r.est === 'tardia' ? '<span style="color:#185FA5;font-weight:800;font-size:11px;">🌙 Extra</span>' :
           r.est === 'anticipada' ? '<span style="color:#cc0000;font-weight:800;font-size:11px;">⏰ Anticipada</span>' :

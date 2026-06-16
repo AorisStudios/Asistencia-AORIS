@@ -42,26 +42,10 @@ export function addH(h, hrs) {
          String(Math.floor(t % 60)).padStart(2, '0');
 }
 
-export function saludo() {
-  const h = gmt5().getHours();
-  return h < 12 ? '¡Buenos días' : h < 18 ? '¡Buenas tardes' : '¡Buenas noches';
-}
-
 export function fechaL(d) {
   const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const mes = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   return dias[d.getDay()] + ', ' + d.getDate() + ' de ' + mes[d.getMonth()] + ' ' + d.getFullYear();
-}
-
-export function esDia() {
-  const h = gmt5().getHours();
-  return h >= 6 && h < 18;
-}
-
-export function esSalidaDesbloqueada(nombre) {
-  if (nombre === 'Mathias') return true;
-  const n = gmt5();
-  return n.getHours() > 13 || (n.getHours() === 13 && n.getMinutes() >= 30);
 }
 
 export function segundosRestantes(e, nombre) {
@@ -93,16 +77,6 @@ export function shadeColor(hex, percent) {
   const g = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + percent));
   const b = Math.min(255, Math.max(0, (num & 0xff) + percent));
   return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-}
-
-export function calcPct2(entrada, salida, nombre) {
-  const [eh, em, es] = entrada.split(':').map(Number);
-  const sale = addH(entrada, getShiftHours(nombre));
-  const [sh2, sm2, ss2] = sale.split(':').map(Number);
-  const [sh, sm, ss] = salida.split(':').map(Number);
-  const total = sh2 * 3600 + sm2 * 60 + ss2 - (eh * 3600 + em * 60 + es);
-  const transcurrido = sh * 3600 + sm * 60 + ss - (eh * 3600 + em * 60 + es);
-  return Math.min(100, Math.max(0, Math.round((transcurrido / total) * 100)));
 }
 
 export function calcPct(entrada, nombre) {

@@ -37,10 +37,6 @@ export function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, alerta, 
     fingerprintHash: fpHash
   };
 
-  console.log('📤 Enviando payload:', payload);
-  console.log('Dispositivo que se envía:', dispositivo);
-  console.log('ISP que se envía:', isp);
-
   return fetch(SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',

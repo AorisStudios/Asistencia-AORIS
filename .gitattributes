@@ -1,0 +1,14 @@
+# Normaliza los finales de línea a LF en todo el repo.
+# Evita el ruido de CRLF<->LF en los commits (problema que tuvimos antes).
+* text=auto eol=lf
+
+# Archivos binarios: git no debe tocarlos
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary

@@ -17,7 +17,7 @@ export function getFingerprint() {
   return c.join('|');
 }
 
-// Cache de la GPU: se detecta una vez (precalentada al cargar la página)
+// Cache de la GPU: se detecta una vez (precalentada al cargar la pagina)
 // y se reutiliza, evitando esperas artificiales al marcar.
 let _gpuCache = null;
 
@@ -45,14 +45,14 @@ export function getGPU() {
     return 'Desconocido';
   }
 
-  // Cachear solo si la detección fue válida (no guardar resultados vacíos)
+  // Cachear solo si la deteccion fue valida (no guardar resultados vacios)
   if (result && result !== 'Desconocido' && result !== 'Sin WebGL') {
     _gpuCache = result;
   }
   return result;
 }
 
-// Precalienta la detección de GPU para que esté lista antes de marcar.
+// Precalienta la deteccion de GPU para que este lista antes de marcar.
 export function warmUpGPU() {
   return getGPU();
 }
@@ -61,3 +61,14 @@ export function getDispositivoInfo() {
   try {
     const gpu = getGPU() || 'Desconocido';
     const cores = navigator.hardwareConcurrency || '?';
+    const ram = (navigator.deviceMemory || '?') + 'GB';
+    const so = navigator.platform || '?';
+    const res = (screen.width || '?') + 'x' + (screen.height || '?');
+    const nav = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Navegador';
+    const info = gpu + ' · ' + cores + ' cores · ' + ram + ' · ' + so + ' · ' + res + ' · ' + nav;
+    return info && info.trim() ? info : 'Dispositivo desconocido';
+  } catch (e) {
+    console.error('Error en getDispositivoInfo:', e);
+    return 'Dispositivo desconocido';
+  }
+}

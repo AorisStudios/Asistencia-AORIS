@@ -1,0 +1,22 @@
+{
+  "name": "aoris-asistencia",
+  "version": "1.0.0",
+  "description": "Sistema de control de asistencia digital para AORIS STUDIOS.",
+  "author": "Deiv Rivera",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python -m http.server 8000",
+    "lint": "eslint js",
+    "lint:fix": "eslint js --fix",
+    "format": "prettier --write \"**/*.{js,json,md,html}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,html}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "eslint": "^9.13.0",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3"
+  }
+}

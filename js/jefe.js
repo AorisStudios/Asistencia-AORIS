@@ -1,7 +1,7 @@
 // AORIS STUDIOS - Jefe (Admin) Module
 
 import { JAVBG, JAVS } from './config.js';
-import { gmt5, fmtFecha, jFmtFecha, jHoras, getShiftHours } from './utils.js';
+import { gmt5, fmtFecha, fmtHM, jFmtFecha, jHoras, getShiftHours } from './utils.js';
 import { obtenerRegistros } from './data.js';
 
 let jefeLogoClicks = 0;
@@ -69,8 +69,8 @@ function jRender() {
     let rows = filas.map(r => ({
       nombre: r.nombre,
       fecha: r.fecha,
-      entrada: r.entrada.length >= 5 ? r.entrada.slice(0, 5) : r.entrada,
-      salida: r.salida.length >= 5 ? r.salida.slice(0, 5) : r.salida,
+      entrada: fmtHM(r.entrada),
+      salida: fmtHM(r.salida),
       dispEntrada: r.dispEntrada,
       dispSalida: r.dispSalida,
       alerta: r.alerta

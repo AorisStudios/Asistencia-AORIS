@@ -1,6 +1,6 @@
 // AORIS STUDIOS - Historial Module
 
-import { gmt5, fmtFechaLegible, calcPct, getShiftHours } from './utils.js';
+import { gmt5, fmtFechaLegible, fmtHM, calcPct, getShiftHours } from './utils.js';
 import { obtenerRegistros } from './data.js';
 
 let histColorActual = '#C4A8FF';
@@ -81,10 +81,10 @@ function renderHistorial(nombre, color) {
           r.est === 'anticipada' ? '<span style="color:#cc0000;font-weight:800;font-size:11px;">⏰ Anticipada</span>' :
           '<span style="color:#856404;font-weight:800;font-size:11px;">🟡 En turno</span>';
         html += '<tr><td style="font-weight:700;font-size:12px;white-space:nowrap;padding:10px 8px;">' + fmtFechaLegible(r.fecha) + '</td>';
-        html += '<td style="white-space:nowrap;padding:10px 8px;"><span class="ao-bdg in" style="font-size:11px;border-color:' + color + ';background:' + color + '30;">' + r.entrada.slice(0, 5) + '</span></td>';
+        html += '<td style="white-space:nowrap;padding:10px 8px;"><span class="ao-bdg in" style="font-size:11px;border-color:' + color + ';background:' + color + '30;">' + fmtHM(r.entrada) + '</span></td>';
         const salidaHtmlFixed = r.salida === '—' ? '<span style="color:var(--txt3);">—</span>' :
-          r.est === 'anticipada' ? '<span class="ao-bdg hora-temprano" style="font-size:11px;">' + r.salida.slice(0, 5) + '</span>' :
-          '<span class="ao-bdg in" style="font-size:11px;">' + r.salida.slice(0, 5) + '</span>';
+          r.est === 'anticipada' ? '<span class="ao-bdg hora-temprano" style="font-size:11px;">' + fmtHM(r.salida) + '</span>' :
+          '<span class="ao-bdg in" style="font-size:11px;">' + fmtHM(r.salida) + '</span>';
         html += '<td style="white-space:nowrap;padding:10px 8px;">' + salidaHtmlFixed + '</td>';
         html += '<td style="color:var(--txt2);font-size:12px;font-weight:700;white-space:nowrap;padding:10px 8px;">' + r.horas + '</td>';
         html += '<td style="white-space:nowrap;padding:10px 8px;"><div style="display:inline-flex;align-items:center;gap:5px;"><div style="height:8px;width:55px;border-radius:10px;border:2px solid var(--border);background:var(--card);overflow:hidden;"><div style="height:100%;width:' + r.pct + '%;background:' + barColor + ';border-radius:8px;"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt);">' + r.pct + '%</span></div></td>';

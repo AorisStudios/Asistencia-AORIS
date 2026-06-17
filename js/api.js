@@ -1,6 +1,6 @@
 // AORIS STUDIOS - API Module
 
-import { SCRIPT_URL, CSV_URL } from './config.js';
+import { SCRIPT_URL } from './config.js';
 
 export let ipInfo = {};
 

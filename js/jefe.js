@@ -1,8 +1,8 @@
 // AORIS STUDIOS - Jefe (Admin) Module
 
-import { CSV_URL } from './config.js';
-import { gmt5, fmtFecha, jFmtFecha, jHoras, parseCSVLine } from './utils.js';
 import { JAVBG, JAVS } from './config.js';
+import { gmt5, fmtFecha, jFmtFecha, jHoras, getShiftHours } from './utils.js';
+import { obtenerRegistros } from './data.js';
 
 let jefeLogoClicks = 0;
 let jefeLogoTimer = null;
@@ -47,33 +47,25 @@ function jRowClass(r) {
   const h = jHoras(r.entrada, r.salida);
   if (h !== '—') {
     const hh = parseInt(h);
-    const sh = r.nombre === 'Mathias' ? 9 : 7.5;
+    const sh = getShiftHours(r.nombre);
     if (hh < sh - 0.5) return 'jrow-early';
   }
   return 'jrow-ok';
 }
 
 function jRender() {
-  fetch(CSV_URL + '&t=' + Date.now()).then(r => r.text()).then(csv => {
-    const lineas = csv.trim().split('\n').slice(1);
+  obtenerRegistros().then(filas => {
     const now = gmt5();
     const hoy = fmtFecha(now);
-    let rows = [];
-    lineas.forEach(l => {
-      const col = parseCSVLine(l);
-      const nombre = (col[1] || '').trim().replace(/"/g, '');
-      const fecha = (col[2] || '').trim().replace(/"/g, '');
-      const entrada = (col[3] || '').trim().replace(/"/g, '');
-      const salida = (col[4] || '').trim().replace(/"/g, '');
-      const dispEntrada = (col[6] || '').trim().replace(/"/g, '');  // Dispositivo Entrada
-      const dispSalida = (col[7] || '').trim().replace(/"/g, '');   // Dispositivo Salida
-      const alerta = (col[8] || '').trim().replace(/"/g, '');
-      if (!nombre || !entrada) return;
-      // Formatear hora correctamente (HH:MM)
-      const entradaFmt = entrada.length >= 5 ? entrada.slice(0, 5) : entrada;
-      const salidaFmt = salida.length >= 5 ? salida.slice(0, 5) : salida;
-      rows.push({ nombre, fecha, entrada: entradaFmt, salida: salidaFmt, dispEntrada, dispSalida, alerta });
-    });
+    let rows = filas.map(r => ({
+      nombre: r.nombre,
+      fecha: r.fecha,
+      entrada: r.entrada.length >= 5 ? r.entrada.slice(0, 5) : r.entrada,
+      salida: r.salida.length >= 5 ? r.salida.slice(0, 5) : r.salida,
+      dispEntrada: r.dispEntrada,
+      dispSalida: r.dispSalida,
+      alerta: r.alerta
+    }));
     const semana = [];
     for (let i = 0; i < 7; i++) { const d = new Date(now); d.setDate(d.getDate() - i); semana.push(fmtFecha(d)); }
     if (jF.fecha === 'hoy') rows = rows.filter(r => r.fecha === hoy);
@@ -91,7 +83,7 @@ function jRender() {
     let fechaActual = null;
     let bgAlterno = false;
 
-    rows.forEach((r, i) => {
+    rows.forEach((r) => {
       // Agregar separador de fecha si cambió
       if (r.fecha !== fechaActual) {
         fechaActual = r.fecha;

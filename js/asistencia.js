@@ -1,11 +1,12 @@
 // AORIS STUDIOS - Asistencia (Attendance) Module
 
-import { EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA, CSV_URL } from './config.js';
-import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor, parseCSVLine } from './utils.js';
+import { EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA } from './config.js';
+import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor } from './utils.js';
 import { sonidoEntrada, sonidoSalida } from './audio.js';
 import { estado, guardarLocal } from './storage.js';
 import * as authModule from './auth.js';
 import { enviarMarquilla } from './api.js';
+import { obtenerRegistros } from './data.js';
 
 export function updateProgress(nombre) {
   const d = estado[nombre];
@@ -98,27 +99,16 @@ export function refTabla() {
 
 export function cargarDesdeSheet() {
   const hoy = fmtFecha(gmt5());
-  fetch(CSV_URL + '&t=' + Date.now())
-    .then(r => r.text())
-    .then(csv => {
-      const lineas = csv.trim().split('\n').slice(1);
-      lineas.forEach(l => {
-        const c = parseCSVLine(l);
-        const nombre = (c[1] || '').trim().replace(/"/g, '');
-        const fecha = (c[2] || '').trim().replace(/"/g, '');
-        const entrada = (c[3] || '').trim().replace(/"/g, '');
-        const salida = (c[4] || '').trim().replace(/"/g, '');
-        const temprano = (c[5] || '').trim().replace(/"/g, '');
-        if (EMPS.includes(nombre) && fecha === hoy && entrada) {
-          // Actualizar o crear estado, pero preservar datos locales si es necesario
-          if (!estado[nombre]) {
-            estado[nombre] = { entrada, salida, temprano };
-          } else {
-            // Actualizar solo si el CSV tiene datos más recientes (salida)
-            if (salida && !estado[nombre].salida) {
-              estado[nombre].salida = salida;
-              estado[nombre].temprano = temprano;
-            }
+  obtenerRegistros()
+    .then(registros => {
+      registros.forEach(r => {
+        if (EMPS.includes(r.nombre) && r.fecha === hoy && r.entrada) {
+          // Crear o actualizar el estado preservando datos locales
+          if (!estado[r.nombre]) {
+            estado[r.nombre] = { entrada: r.entrada, salida: r.salida, temprano: r.temprano };
+          } else if (r.salida && !estado[r.nombre].salida) {
+            estado[r.nombre].salida = r.salida;
+            estado[r.nombre].temprano = r.temprano;
           }
         }
       });

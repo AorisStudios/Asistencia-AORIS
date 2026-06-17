@@ -1,7 +1,7 @@
 // AORIS STUDIOS - Historial Module
 
-import { CSV_URL } from './config.js';
-import { gmt5, fmtFechaLegible, calcPct, getShiftHours, parseCSVLine } from './utils.js';
+import { gmt5, fmtFechaLegible, calcPct, getShiftHours } from './utils.js';
+import { obtenerRegistros } from './data.js';
 
 let histColorActual = '#C4A8FF';
 
@@ -26,23 +26,16 @@ function renderHistorial(nombre, color) {
   const anioActual = hoyDate.getFullYear();
   const turnoSegs = getShiftHours(nombre) * 3600; // turno real del empleado
 
-  fetch(CSV_URL + '&t=' + Date.now())
-    .then(r => r.text())
-    .then(csv => {
-      const lineas = csv.trim().split('\n').slice(1);
+  obtenerRegistros()
+    .then(filas => {
       const registros = [];
-      lineas.forEach(l => {
-        const c = parseCSVLine(l);
-        const n = (c[1] || '').trim().replace(/"/g, '');
-        const fecha = (c[2] || '').trim().replace(/"/g, '');
-        const entrada = (c[3] || '').trim().replace(/"/g, '');
-        const salida = (c[4] || '').trim().replace(/"/g, '');
-        const temprano = (c[5] || '').trim().replace(/"/g, '');
-        if (n !== nombre || !entrada) return;
-        const parts = fecha.split('/');
+      filas.forEach(r => {
+        if (r.nombre !== nombre || !r.entrada) return;
+        const parts = r.fecha.split('/');
         if (parts.length < 3) return;
         const dm = parseInt(parts[1]) - 1, dy = parseInt(parts[2]);
         if (dm !== mesActual || dy !== anioActual) return;
+        const { fecha, entrada, salida, temprano } = r;
         let horas = '—', pct = 0, est = 'sin-salida';
         if (salida) {
           const [eh, em, es] = entrada.split(':').map(Number);

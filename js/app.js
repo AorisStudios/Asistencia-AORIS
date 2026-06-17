@@ -1,33 +1,13 @@
 // AORIS STUDIOS - Main App Module
 
-import { FRASES, EMPS, JEFE_PIN } from './config.js';
+import { FRASES, EMPS } from './config.js';
 import { gmt5, fmt, fechaL, segundosRestantes } from './utils.js';
-import { resumeAudio } from './audio.js';
 import { obtenerIPInfo } from './api.js';
 import { warmUpGPU } from './fingerprint.js';
-import { cargarLocal, guardarLocal, estado } from './storage.js';
+import { cargarLocal, estado } from './storage.js';
 import { typeWriter, aplicarTema, actualizarCountdown } from './ui.js';
-import { startExperience } from './splash.js';
-import { selEmp, verPin, setBtnMarca, cur, pinOk } from './auth.js';
-import { refTabla, cargarDesdeSheet, updateProgress, cerrarBye, intentarMarcar, cerrarModalConfirm } from './asistencia.js';
-import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo } from './jefe.js';
-import { abrirHistorial } from './historial.js';
-
-// Expose ALL handlers to global window IMMEDIATELY
-window.startExperience = startExperience;
-window.selEmp = selEmp;
-window.verPin = verPin;
-window.setBtnMarca = setBtnMarca;
-window.intentarMarcar = intentarMarcar;
-window.jefeLogoClick = jefeLogoClick;
-window.verificarPinJefe = () => verificarPinJefe(JEFE_PIN);
-window.cerrarJefe = cerrarJefe;
-window.mostrarDispositivo = mostrarDispositivo;
-window.cerrarDispositivo = cerrarDispositivo;
-window.abrirHistorial = abrirHistorial;
-window.cerrarBye = cerrarBye;
-window.cerrarModalConfirm = cerrarModalConfirm;
-window.estado = estado;
+import { refTabla, cargarDesdeSheet, updateProgress } from './asistencia.js';
+import { inicializarEventos } from './eventos.js';
 
 function tick() {
   const n = gmt5();
@@ -63,6 +43,8 @@ export function iniciarApp() {
 
 // Init on page load
 window.addEventListener('load', () => {
+  inicializarEventos();
+
   const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
   const el = document.getElementById('entry-phrase');
   if (el) {
@@ -75,4 +57,5 @@ window.addEventListener('load', () => {
   warmUpGPU(); // detectar la GPU temprano para que esté lista al marcar
 });
 
-// Export for debugging and auth - estado es una referencia viva
+// Referencia viva del estado para depuración y para auth.setBtnMarca()
+window.appState = { get estado() { return estado; }, gmt5, fmt, iniciarApp };

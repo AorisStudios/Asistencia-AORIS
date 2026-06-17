@@ -82,7 +82,7 @@ export function setBtnMarca() {
     welTitle.textContent = '¡Bienvenido, ' + cur + '! 👋';
     welSub.textContent = 'Estás listo para marcar tu entrada';
     btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;';
-    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" onclick="intentarMarcar()" style="cursor:pointer;">✅ MARCAR ENTRADA</div></div>';
+    btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-entrada" style="cursor:pointer;">✅ MARCAR ENTRADA</div></div>';
   } else {
     welTitle.textContent = '¡Hasta luego, ' + cur + '! 👋';
 
@@ -97,7 +97,7 @@ export function setBtnMarca() {
     } else {
       welSub.textContent = 'Marca tu salida para terminar el turno';
       btn.style.cssText = 'display:block;margin:20px auto;cursor:pointer;text-align:center;max-width:300px;opacity:1;pointer-events:auto;';
-      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" onclick="intentarMarcar()" style="cursor:pointer;">🚪 MARCAR SALIDA</div></div>';
+      btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" style="cursor:pointer;">🚪 MARCAR SALIDA</div></div>';
     }
   }
 }

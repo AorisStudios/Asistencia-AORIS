@@ -104,8 +104,8 @@ function jRender() {
       const bgRow = bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)';
 
       // Botones de dispositivo entrada y salida
-      const btnEntrada = r.dispEntrada ? `<button class="jdisp-btn" onclick="mostrarDispositivo(this, 'entrada')" data-dispositivo="${r.dispEntrada.replace(/"/g, '&quot;')}">🖥️ Ent</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Ent</button>';
-      const btnSalida = r.dispSalida ? `<button class="jdisp-btn" onclick="mostrarDispositivo(this, 'salida')" data-dispositivo="${r.dispSalida.replace(/"/g, '&quot;')}">🖥️ Sal</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Sal</button>';
+      const btnEntrada = r.dispEntrada ? `<button class="jdisp-btn" data-tipo="entrada" data-dispositivo="${r.dispEntrada.replace(/"/g, '&quot;')}">🖥️ Ent</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Ent</button>';
+      const btnSalida = r.dispSalida ? `<button class="jdisp-btn" data-tipo="salida" data-dispositivo="${r.dispSalida.replace(/"/g, '&quot;')}">🖥️ Sal</button>` : '<button class="jdisp-btn" style="opacity:0.4;cursor:not-allowed;" disabled>🖥️ Sal</button>';
       const dispHtml = `<div style="display:flex;gap:6px;">${btnEntrada}${btnSalida}</div>`;
 
       html += `<tr class="${rc}" style="background:${bgRow}"><td><div class="jemp-cell"><div class="jav-sm" style="background:${avBg};border:2px solid #444;">${avHtml}</div><span class="jemp-name">${r.nombre}</span></div></td><td><span class="jbdg jbdg-g">${r.entrada || '—'}</span></td><td>${salidaHtml}</td><td>${horasHtml}</td><td>${dispHtml}</td><td><span class="jbdg ${ab}">${at}</span></td></tr>`;

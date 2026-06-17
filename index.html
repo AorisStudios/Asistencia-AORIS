@@ -11,7 +11,7 @@
 <body class="tema-dia" id="body">
 
 <!-- ENTRY SCREEN -->
-<div id="entry-screen" onclick="startExperience()">
+<div id="entry-screen">
   <div id="entry-grid"></div>
   <div id="entry-content">
     <div id="entry-icon">
@@ -61,7 +61,7 @@
       <div class="ao-modal-title" id="modal-title"></div>
       <div class="ao-modal-sub" id="modal-sub"></div>
       <div class="ao-modal-cards" id="modal-cards"></div>
-      <div onclick="cerrarModalConfirm()" style="padding:14px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Entendido ✓</div>
+      <div id="btn-confirm-ok" style="padding:14px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Entendido ✓</div>
     </div>
   </div>
 
@@ -80,8 +80,8 @@
       </div>
       <div class="alerta-txt-bot">...para completar tu turno de hoy.</div>
       <div style="display:flex;gap:10px;">
-        <div onclick="document.getElementById('overlay-alerta').classList.remove('show')" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#F5F0E8;color:#111;box-shadow:3px 3px 0 #444;">← Volver</div>
-        <div onclick="elegirRazon('anticipada',1)" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#FF4444;color:#fff;box-shadow:3px 3px 0 #aa0000;">Salir igual</div>
+        <div id="btn-alerta-volver" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#F5F0E8;color:#111;box-shadow:3px 3px 0 #444;">← Volver</div>
+        <div id="btn-alerta-salir" style="flex:1;padding:12px;border:3px solid #111;border-radius:12px;font-size:14px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#FF4444;color:#fff;box-shadow:3px 3px 0 #aa0000;">Salir igual</div>
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@
   <div class="ao-wrap">
     <div class="ao-card">
       <div class="ao-header">
-        <div class="ao-logo" onclick="jefeLogoClick()" style="cursor:default;" id="ao-logo-click">
+        <div class="ao-logo" style="cursor:default;" id="ao-logo-click">
           <div class="ao-logo-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <rect x="2" y="2" width="7" height="7" rx="1" fill="#FFD600"/>
@@ -118,14 +118,14 @@
       <div class="ao-body">
         <div class="ao-label">¿Quién eres?</div>
         <div class="ao-employees">
-          <div class="ao-emp" id="emp-Ronald" onclick="if(!estado['Ronald']||!estado['Ronald'].salida)selEmp('Ronald')">
+          <div class="ao-emp" id="emp-Ronald">
             <div class="ao-emp-hdr ao-emp-hdr-ronald">
               <div class="ao-avatar" style="background:#EDE0FF;">
                 <svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#EDE0FF"/><circle cx="25" cy="20" r="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#C4A8FF" stroke="#111" stroke-width="2"/><rect x="17" y="12" width="16" height="5" rx="2" fill="#111"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24 Q25 26.5 28 24" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="20" y="30" width="10" height="6" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><line x1="25" y1="30" x2="25" y2="36" stroke="#111" stroke-width="1.5"/></svg>
               </div>
               <div class="ao-emp-name">Ronald</div>
               <div class="ao-emp-st" id="st-Ronald">Sin registro hoy</div>
-              <div onclick="event.stopPropagation();abrirHistorial('Ronald','#C4A8FF')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+              <div class="btn-historial" data-emp="Ronald" data-color="#C4A8FF" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
             </div>
             <div class="ao-emp-body">
               <div class="ao-emp-times">
@@ -142,12 +142,12 @@
           </div>
 
           <!-- Brandon y Mathias omitidos por brevedad (estructura similar a Ronald) -->
-          <div class="ao-emp" id="emp-Brandon" onclick="if(!estado['Brandon']||!estado['Brandon'].salida)selEmp('Brandon')">
+          <div class="ao-emp" id="emp-Brandon">
             <div class="ao-emp-hdr ao-emp-hdr-brandon">
               <div class="ao-avatar" style="background:#FFE8C4;"><svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#FFE8C4"/><circle cx="25" cy="20" r="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#FFBC6B" stroke="#111" stroke-width="2"/><path d="M16 17 Q25 10 34 17" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="19" y="30" width="12" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="25" cy="33.5" r="1.5" fill="#111"/></svg></div>
               <div class="ao-emp-name">Brandon</div>
               <div class="ao-emp-st" id="st-Brandon">Sin registro hoy</div>
-              <div onclick="event.stopPropagation();abrirHistorial('Brandon','#FFBC6B')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+              <div class="btn-historial" data-emp="Brandon" data-color="#FFBC6B" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
             </div>
             <div class="ao-emp-body">
               <div class="ao-emp-times">
@@ -162,12 +162,12 @@
             </div>
           </div>
 
-          <div class="ao-emp" id="emp-Mathias" onclick="if(!estado['Mathias']||!estado['Mathias'].salida)selEmp('Mathias')">
+          <div class="ao-emp" id="emp-Mathias">
             <div class="ao-emp-hdr ao-emp-hdr-mathias">
               <div class="ao-avatar" style="background:#D4F5C4;"><svg width="64" height="64" viewBox="0 0 50 50" fill="none"><circle cx="25" cy="25" r="25" fill="#D4F5C4"/><circle cx="25" cy="20" r="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><ellipse cx="25" cy="42" rx="13" ry="9" fill="#8DCF5B" stroke="#111" stroke-width="2"/><path d="M16 14 Q25 8 34 14" stroke="#111" stroke-width="2" fill="none"/><circle cx="21" cy="21" r="1.5" fill="#111"/><circle cx="29" cy="21" r="1.5" fill="#111"/><path d="M22 24.5 Q25 27 28 24.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" fill="none"/><rect x="18" y="30" width="14" height="7" rx="2" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="22" cy="33.5" r="1.5" fill="#111"/><circle cx="28" cy="33.5" r="1.5" fill="#111"/></svg></div>
               <div class="ao-emp-name">Mathias</div>
               <div class="ao-emp-st" id="st-Mathias">Sin registro hoy</div>
-              <div onclick="event.stopPropagation();abrirHistorial('Mathias','#5BC8F5')" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
+              <div class="btn-historial" data-emp="Mathias" data-color="#5BC8F5" style="display:inline-flex;align-items:center;gap:4px;margin-top:9px;padding:5px 12px;background:#111;border:2px solid #111;border-radius:20px;font-size:11px;font-weight:800;color:#FFD600;cursor:pointer;font-family:Arial,sans-serif;box-shadow:2px 2px 0 #444;pointer-events:all;">📊 Mi rendimiento</div>
             </div>
             <div class="ao-emp-body">
               <div class="ao-emp-times">
@@ -186,9 +186,9 @@
         <div class="ao-pin-box" id="pin-box">
           <div class="ao-pin-greet" id="pin-greet"></div>
           <div class="ao-pin-lbl">Ingresa tu PIN</div>
-          <input class="ao-pin-inp" type="password" inputmode="numeric" maxlength="4" id="pin-inp" placeholder="••••" onkeyup="if(event.key==='Enter')verPin()"/>
+          <input class="ao-pin-inp" type="password" inputmode="numeric" maxlength="4" id="pin-inp" placeholder="••••" />
           <div class="ao-pin-err" id="pin-err">PIN incorrecto — intenta de nuevo</div>
-          <div onclick="verPin()" style="margin-top:12px;padding:13px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Confirmar PIN →</div>
+          <div id="btn-pin-confirm" style="margin-top:12px;padding:13px;border:3px solid #111;border-radius:12px;font-size:15px;font-weight:800;font-family:'Space Grotesk',Arial,sans-serif;cursor:pointer;text-align:center;background:#111;color:#FFD600;box-shadow:4px 4px 0 #444;">Confirmar PIN →</div>
         </div>
 
         <div class="ao-welcome" id="welcome">
@@ -216,7 +216,7 @@
     <div class="hist-modal">
       <div class="hist-header">
         <div class="hist-title" id="hist-title">📊 Rendimiento del mes</div>
-        <div class="hist-close" onclick="document.getElementById('hist-overlay').classList.remove('show')">✕</div>
+        <div class="hist-close">✕</div>
       </div>
       <div class="hist-stats">
         <div class="hist-stat"><div class="hist-stat-val" id="hist-dias">—</div><div class="hist-stat-lbl">Días</div></div>
@@ -237,9 +237,9 @@
       <div style="font-size:44px;margin-bottom:14px;">🔐</div>
       <div style="font-size:18px;font-weight:800;color:#FFD600;margin-bottom:6px;">Acceso restringido</div>
       <div style="font-size:13px;color:#666;margin-bottom:20px;">Ingresa el PIN de administrador</div>
-      <input class="jefe-pin-inp" type="password" inputmode="numeric" maxlength="4" id="jefe-pin-inp" placeholder="••••" onkeyup="if(event.key==='Enter')verificarPinJefe()"/>
+      <input class="jefe-pin-inp" type="password" inputmode="numeric" maxlength="4" id="jefe-pin-inp" placeholder="••••" />
       <div class="jefe-pin-err" id="jefe-pin-err">PIN incorrecto</div>
-      <div class="jefe-pin-btn" onclick="verificarPinJefe()">Entrar →</div>
+      <div class="jefe-pin-btn">Entrar →</div>
     </div>
   </div>
 
@@ -247,7 +247,7 @@
     <div class="jefe-wrap">
       <div class="jefe-header">
         <div><div class="jefe-title">👀 Vista de Jefe</div><div class="jefe-sub">AORIS STUDIOS · Registros de asistencia</div></div>
-        <button class="jefe-close-btn" onclick="cerrarJefe()">✕ Salir</button>
+        <button class="jefe-close-btn">✕ Salir</button>
       </div>
       <div id="jresults"></div>
       <div class="jefe-table-wrap"><table class="jefe-table"><thead><tr><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Dispositivo</th><th>Alerta</th></tr></thead><tbody id="jefe-tbody"></tbody></table></div>
@@ -260,14 +260,14 @@
       <div class="bye-avatar" id="bye-avatar"></div>
       <div class="bye-title" id="bye-title"></div>
       <div class="bye-msg" id="bye-msg"></div>
-      <div class="bye-btn" onclick="cerrarBye()">¡Hasta luego! 👋</div>
+      <div class="bye-btn">¡Hasta luego! 👋</div>
     </div>
   </div>
 
   <!-- Modal Dispositivo -->
-  <div class="disp-modal-overlay" id="disp-modal-overlay" onclick="if(event.target.id === 'disp-modal-overlay') cerrarDispositivo()">
+  <div class="disp-modal-overlay" id="disp-modal-overlay">
     <div class="disp-modal" id="disp-modal">
-      <div class="disp-modal-close" onclick="cerrarDispositivo()">✕</div>
+      <div class="disp-modal-close">✕</div>
       <div class="disp-modal-content" id="disp-modal-content"></div>
     </div>
   </div>

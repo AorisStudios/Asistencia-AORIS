@@ -38,8 +38,8 @@ function renderHistorial(nombre, color) {
         const { fecha, entrada, salida, temprano } = r;
         let horas = '—', pct = 0, est = 'sin-salida';
         if (salida) {
-          const [eh, em, es] = entrada.split(':').map(Number);
-          const [sh, sm, ss] = salida.split(':').map(Number);
+          const [eh, em, es = 0] = entrada.split(':').map(Number);
+          const [sh, sm, ss = 0] = salida.split(':').map(Number);
           const segs = (sh * 3600 + sm * 60 + ss) - (eh * 3600 + em * 60 + es);
           pct = Math.min(100, Math.max(0, Math.round((segs / turnoSegs) * 100)));
           const hh = Math.floor(segs / 3600), mm = Math.floor((segs % 3600) / 60);

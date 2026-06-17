@@ -73,7 +73,7 @@ export function segundosRestantes(e, nombre) {
 export function minutosTemprano(e, s, nombre) {
   const sale = addH(e, getShiftHours(nombre));
   const [ph, pm, ps] = sale.split(':').map(Number);
-  const [sh, sm, ss] = s.split(':').map(Number);
+  const [sh, sm, ss = 0] = s.split(':').map(Number);
   return Math.max(0, Math.floor((ph * 3600 + pm * 60 + ps - sh * 3600 - sm * 60 - ss) / 60));
 }
 
@@ -95,7 +95,7 @@ export function shadeColor(hex, percent) {
 }
 
 export function calcPct(entrada, nombre) {
-  const [eh, em, es] = entrada.split(':').map(Number);
+  const [eh, em, es = 0] = entrada.split(':').map(Number);
   const sale = addH(entrada, getShiftHours(nombre));
   const [sh, sm, ss] = sale.split(':').map(Number);
   const n = gmt5();

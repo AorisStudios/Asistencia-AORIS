@@ -66,3 +66,9 @@ test('jHoras calcula duración HH:MM', () => {
   assert.equal(jHoras('09:30', '17:36'), '8h 06m');
   assert.equal(jHoras('', 'x'), '—');
 });
+
+test('minutosTemprano tolera horas sin segundos (HH:MM)', () => {
+  // Ronald (7.5h): entrada 09:00 -> sale 16:30; salió 16:00 -> faltaron 30 min
+  assert.equal(minutosTemprano('09:00', '16:00', 'Ronald'), 30);
+  assert.equal(minutosTemprano('09:00', '16:30', 'Ronald'), 0);
+});

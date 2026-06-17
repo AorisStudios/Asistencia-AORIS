@@ -102,27 +102,45 @@ export function cargarDesdeSheet() {
   const hoy = fmtFecha(gmt5());
   obtenerRegistros()
     .then(registros => {
-      registros.forEach(r => {
-        if (EMPS.includes(r.nombre) && r.fecha === hoy && r.entrada) {
-          // Crear o actualizar el estado preservando datos locales
-          if (!estado[r.nombre]) {
-            estado[r.nombre] = { entrada: r.entrada, salida: r.salida, temprano: r.temprano };
-          } else if (r.salida && !estado[r.nombre].salida) {
-            estado[r.nombre].salida = r.salida;
-            estado[r.nombre].temprano = r.temprano;
-          }
+      // Lectura vacía: probable lectura fallida o desactualizada -> no tocar el estado local
+      if (!registros.length) { refTabla(); return; }
+
+      const GRACIA_MS = 5 * 60 * 1000; // protege marcas recién hechas (retraso de publicación del Sheet)
+      const ahora = Date.now();
+
+      // Registros de HOY indexados por empleado
+      const hoyPorNombre = {};
+      registros.forEach(r => { if (r.fecha === hoy) hoyPorNombre[r.nombre] = r; });
+
+      // El Sheet es la fuente de verdad: añade, actualiza y QUITA lo que ya no está.
+      EMPS.forEach(nombre => {
+        const local = estado[nombre];
+        const reciente = local && local._marcadoEn && (ahora - local._marcadoEn) < GRACIA_MS;
+        if (reciente) return; // respetar una marca local reciente (puede no estar publicada aún)
+
+        const enSheet = hoyPorNombre[nombre];
+        if (enSheet) {
+          estado[nombre] = {
+            entrada: enSheet.entrada || null,
+            salida: enSheet.salida || null,
+            temprano: enSheet.temprano || ''
+          };
+        } else {
+          delete estado[nombre]; // ya no está en el Sheet -> limpiar la tarjeta
         }
       });
+
       guardarLocal();
       refTabla();
     })
-    .catch(() => {});
+    .catch(() => {}); // lectura fallida -> conservar el estado local
 }
 
 export function ejecutarMarca(tipo, hora) {
   const cur = authModule.cur;
   if (!estado[cur]) estado[cur] = {};
   estado[cur][tipo] = hora;
+  estado[cur]._marcadoEn = Date.now(); // sello local para la ventana de gracia
 
   let temprano = 0;
   let tempranoTexto = '';
@@ -246,7 +264,7 @@ export function intentarMarcar() {
 
   const d = estado[authModule.cur];
   const tipo = (d && d.entrada) ? 'salida' : 'entrada';
-  const hora = fmt(gmt5());
+  const hora = fmtHM(fmt(gmt5())); // guardar solo HH:MM (sin segundos)
 
   // La GPU ya está precalentada (warmUpGPU al cargar), no hace falta esperar.
   if (tipo === 'entrada') {

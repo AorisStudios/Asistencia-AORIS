@@ -1,7 +1,9 @@
 // AORIS STUDIOS - Historial Module
 
 import { gmt5, fmtFechaLegible, fmtHM, calcPct, getShiftHours } from './utils.js';
-import { obtenerRegistros } from './data.js';
+import { obtenerDatos } from './data.js';
+import { setCalendario } from './calendario.js';
+import { calcularSaldo, formatearSaldo } from './horas.js';
 
 let histColorActual = '#C4A8FF';
 
@@ -16,6 +18,8 @@ export function abrirHistorial(nombre, color) {
   document.getElementById('hist-prom').textContent = '—';
   document.getElementById('hist-comp').textContent = '—';
   document.getElementById('hist-ant').textContent = '—';
+  const elSaldoReset = document.getElementById('hist-saldo');
+  if (elSaldoReset) { elSaldoReset.textContent = 'Banco de horas: calculando…'; elSaldoReset.className = 'hist-saldo saldo-neutro'; }
   document.getElementById('hist-overlay').classList.add('show');
   renderHistorial(nombre, color);
 }
@@ -26,8 +30,15 @@ function renderHistorial(nombre, color) {
   const anioActual = hoyDate.getFullYear();
   const turnoSegs = getShiftHours(nombre) * 3600; // turno real del empleado
 
-  obtenerRegistros()
-    .then(filas => {
+  obtenerDatos()
+    .then(({ registros: filas, feriados, ausencias }) => {
+      setCalendario(feriados, ausencias);
+
+      // Banco de horas: saldo acumulado sobre TODO el historial del empleado.
+      const s = formatearSaldo(calcularSaldo(nombre, filas, getShiftHours(nombre)));
+      const elSaldo = document.getElementById('hist-saldo');
+      if (elSaldo) { elSaldo.textContent = 'Banco de horas: ' + s.texto; elSaldo.className = 'hist-saldo saldo-' + s.tipo; }
+
       const registros = [];
       filas.forEach(r => {
         if (r.nombre !== nombre || !r.entrada) return;

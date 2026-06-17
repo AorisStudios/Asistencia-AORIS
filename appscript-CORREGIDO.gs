@@ -16,7 +16,7 @@ const AUSENCIAS_SHEET = 'Ausencias';
 // Normaliza una fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacia.
 function formatearFecha(fecha, tz) {
   if (!fecha && fecha !== 0) return '';
-  if (fecha instanceof Date) {
+  if (fecha && typeof fecha.getMonth === 'function') {
     return Utilities.formatDate(fecha, tz, 'dd/MM/yyyy');
   }
   const partes = String(fecha).trim().split('/');
@@ -29,7 +29,7 @@ function formatearFecha(fecha, tz) {
 // Normaliza una hora (Date o texto) a "HH:mm".
 function formatearHora(hora, tz) {
   if (!hora && hora !== 0) return '';
-  if (hora instanceof Date) {
+  if (hora && typeof hora.getHours === 'function') {
     return Utilities.formatDate(hora, tz, 'HH:mm');
   }
   return String(hora).trim();

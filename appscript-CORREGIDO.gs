@@ -7,21 +7,20 @@
 // Cambios:
 //  - Arregla el duplicado de salida (busca fila por nombre+fecha).
 //  - BLINDAJE: si la marca llega SIN fecha, el servidor le pone la de hoy.
+//  - Guarda fecha y hora como TEXTO (la hora queda HH:MM, sin segundos).
 // ===================================================================
 
 const SPREADSHEET_ID = '1fOp6pZLGUjmy0socmHCnBA52gyhDR2d6ofZG7n-t-3s';
 const SHEET_NAME = 'Asistencia';
 
-// Normaliza CUALQUIER fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacía.
+// Normaliza CUALQUIER fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacia.
 function formatearFecha(fecha, tz) {
   if (!fecha && fecha !== 0) return '';
 
-  // Si Sheets la convirtio en Date, formatear con la zona del Spreadsheet
   if (fecha instanceof Date) {
     return Utilities.formatDate(fecha, tz, 'dd/MM/yyyy');
   }
 
-  // Si es texto, normalizar padding: "6/6/2026" -> "06/06/2026"
   const partes = String(fecha).trim().split('/');
   if (partes.length === 3) {
     const dia = partes[0].padStart(2, '0');
@@ -37,12 +36,11 @@ function doPost(e) {
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
-    const tz = ss.getSpreadsheetTimeZone();              // zona horaria REAL del sheet
+    const tz = ss.getSpreadsheetTimeZone();
 
     const dispositivoCompleto = body.dispositivo + ' · ISP: ' + (body.isp || '?');
 
-    // BLINDAJE: si la marca no trae fecha, usamos la fecha de HOY del servidor.
-    // Así nunca se guarda una fila sin fecha (que luego no aparece en la vista de jefe).
+    // Si la marca no trae fecha, usar la fecha de HOY del servidor.
     const hoy = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy');
     const fechaBuscada = formatearFecha(body.fecha, tz) || hoy;
 
@@ -62,10 +60,10 @@ function doPost(e) {
     if (rowFound > 0) {
       // ACTUALIZAR fila existente
       if (body.tipo === 'entrada') {
-        sheet.getRange(rowFound, 4).setValue(body.hora);
+        sheet.getRange(rowFound, 4).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(rowFound, 7).setValue(dispositivoCompleto);
       } else {
-        sheet.getRange(rowFound, 5).setValue(body.hora);
+        sheet.getRange(rowFound, 5).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(rowFound, 8).setValue(dispositivoCompleto);
         sheet.getRange(rowFound, 6).setValue(body.temprano);
       }
@@ -75,15 +73,13 @@ function doPost(e) {
       const lastRow = sheet.getLastRow() + 1;
       sheet.getRange(lastRow, 1).setValue(lastRow - 1);
       sheet.getRange(lastRow, 2).setValue(body.nombre);
-
-      // Forzar la fecha como TEXTO para que no se convierta en Date
       sheet.getRange(lastRow, 3).setNumberFormat('@').setValue(fechaBuscada);
 
       if (body.tipo === 'entrada') {
-        sheet.getRange(lastRow, 4).setValue(body.hora);
+        sheet.getRange(lastRow, 4).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(lastRow, 7).setValue(dispositivoCompleto);
       } else {
-        sheet.getRange(lastRow, 5).setValue(body.hora);
+        sheet.getRange(lastRow, 5).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(lastRow, 8).setValue(dispositivoCompleto);
       }
       sheet.getRange(lastRow, 9).setValue(body.alerta);

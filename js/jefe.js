@@ -7,6 +7,8 @@ import { obtenerRegistros } from './data.js';
 let jefeLogoClicks = 0;
 let jefeLogoTimer = null;
 let jF = { fecha: 'semana', emp: 'todos', est: 'todos' };
+let jRefreshTimer = null;   // refresco automático mientras la vista está abierta
+let jefeCierreTimer = null; // auto-cierre por inactividad
 
 export function jefeLogoClick() {
   jefeLogoClicks++;
@@ -34,10 +36,17 @@ export function verificarPinJefe(PIN) {
   document.getElementById('jefe-pin-overlay').classList.remove('show');
   document.getElementById('jefe-overlay').classList.add('show');
   jRender();
-  setTimeout(cerrarJefe, 10 * 60 * 1000);
+  // Refrescar los registros cada 30s mientras la vista esté abierta
+  clearInterval(jRefreshTimer);
+  jRefreshTimer = setInterval(jRender, 30000);
+  // Auto-cierre por inactividad a los 10 minutos
+  clearTimeout(jefeCierreTimer);
+  jefeCierreTimer = setTimeout(cerrarJefe, 10 * 60 * 1000);
 }
 
 export function cerrarJefe() {
+  clearInterval(jRefreshTimer);
+  clearTimeout(jefeCierreTimer);
   document.getElementById('jefe-overlay').classList.remove('show');
   cerrarDispositivo();
 }

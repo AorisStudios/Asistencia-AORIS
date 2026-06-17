@@ -1,14 +1,18 @@
 // ===================================================================
-// AORIS STUDIOS - Apps Script CORREGIDO (arregla duplicado de salida)
+// AORIS STUDIOS - Apps Script (backend)
 // Pega TODO este contenido en el editor de Apps Script, reemplazando
 // lo que tengas. Luego: Implementar > Administrar implementaciones >
 // Editar (lapiz) > Version: Nueva version > Implementar.
+//
+// Cambios:
+//  - Arregla el duplicado de salida (busca fila por nombre+fecha).
+//  - BLINDAJE: si la marca llega SIN fecha, el servidor le pone la de hoy.
 // ===================================================================
 
 const SPREADSHEET_ID = '1fOp6pZLGUjmy0socmHCnBA52gyhDR2d6ofZG7n-t-3s';
 const SHEET_NAME = 'Asistencia';
 
-// Normaliza CUALQUIER fecha (Date o texto) a "dd/MM/yyyy"
+// Normaliza CUALQUIER fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacía.
 function formatearFecha(fecha, tz) {
   if (!fecha && fecha !== 0) return '';
 
@@ -36,7 +40,11 @@ function doPost(e) {
     const tz = ss.getSpreadsheetTimeZone();              // zona horaria REAL del sheet
 
     const dispositivoCompleto = body.dispositivo + ' · ISP: ' + (body.isp || '?');
-    const fechaBuscada = formatearFecha(body.fecha, tz);  // normalizar lo que llega
+
+    // BLINDAJE: si la marca no trae fecha, usamos la fecha de HOY del servidor.
+    // Así nunca se guarda una fila sin fecha (que luego no aparece en la vista de jefe).
+    const hoy = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy');
+    const fechaBuscada = formatearFecha(body.fecha, tz) || hoy;
 
     const data = sheet.getDataRange().getValues();
     let rowFound = -1;

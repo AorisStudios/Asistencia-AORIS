@@ -1,6 +1,6 @@
 // AORIS STUDIOS - Configuration Module
 
-export const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbztlVQwHtdmZkNtBsM0OMCMXICGwVeu_YbjgMwpMBuR0ykVgq6VxKGJTyQktAskdk6K/exec";
+export const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxACXPiLFgj1L1HPyZC1KXsX3S_KAvzsYfdt5NhL_yFHIIzO7zN8zCz_zgQxghKXz-R/exec";
 export const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSc_A_UXmqrTCgWEownfi5WyM42twXBSax-9lw_ugukHjryJ0H9j6CPuqT64VEf60mhen90C_yNkYqP/pub?output=csv";
 export const ISP_AUTORIZADO = "RED INTERCABLE PERU SAC";
 

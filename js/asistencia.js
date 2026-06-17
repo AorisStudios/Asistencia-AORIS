@@ -7,6 +7,7 @@ import { estado, guardarLocal } from './storage.js';
 import * as authModule from './auth.js';
 import { enviarMarquilla } from './api.js';
 import { obtenerRegistros } from './data.js';
+import { mostrarToast } from './ui.js';
 
 export function updateProgress(nombre) {
   const d = estado[nombre];
@@ -124,22 +125,27 @@ export function ejecutarMarca(tipo, hora) {
   estado[cur][tipo] = hora;
 
   let temprano = 0;
+  let tempranoTexto = '';
   const fecha = fmtFecha(gmt5());
   const fp = authModule.getCurFP();
-  const validacion = authModule.getCurValidation(cur);
-  const alerta = validacion.alerta;
+  const alerta = authModule.getCurValidation(cur).alerta;
   const dispositivo = authModule.getCurDeviceInfo();
 
   if (tipo === 'entrada') {
     sonidoEntrada();
-    enviarMarquilla(cur, fecha, hora, tipo, dispositivo, alerta, '', fp);
   } else {
     sonidoSalida();
     temprano = minutosTemprano(estado[cur].entrada, hora, cur);
-    const tempranoTexto = temprano > 0 ? `faltaron ${textoTemprano(temprano)}` : '';
+    tempranoTexto = temprano > 0 ? `faltaron ${textoTemprano(temprano)}` : '';
     estado[cur].temprano = tempranoTexto;
-    enviarMarquilla(cur, fecha, hora, tipo, dispositivo, alerta, tempranoTexto, fp);
   }
+
+  // Enviar al servidor y avisar si el guardado falló (p. ej. sin conexión).
+  enviarMarquilla(cur, fecha, hora, tipo, dispositivo, alerta, tempranoTexto, fp)
+    .catch((err) => {
+      console.error('No se pudo guardar la marca:', err);
+      mostrarToast('⚠️ No se pudo guardar la marca. Revisa tu conexión e inténtalo de nuevo.');
+    });
 
   guardarLocal();
   refTabla();

@@ -23,7 +23,7 @@ export async function obtenerIPInfo() {
   return probar(0);
 }
 
-export function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, alerta, temprano, fpHash) {
+export async function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, alerta, temprano, fpHash) {
   const isp = (ipInfo && ipInfo.isp) ? ipInfo.isp : '?';
   const payload = {
     nombre,
@@ -37,10 +37,26 @@ export function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, alerta, 
     fingerprintHash: fpHash
   };
 
-  return fetch(SCRIPT_URL, {
+  // Petición "simple" (sin Content-Type personalizado) para evitar el preflight
+  // CORS que Apps Script no maneja. Así sí se puede leer la respuesta y verificar.
+  // Apps Script igual parsea el body con JSON.parse, así que no afecta al guardado.
+  const res = await fetch(SCRIPT_URL, {
     method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+
+  // Intentar confirmar con la respuesta del servidor.
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (e) {
+    // Respuesta no legible (CORS opaco): se envió pero no se puede verificar.
+  }
+
+  if (data && data.ok === false) {
+    throw new Error(data.error || 'El servidor rechazó el guardado');
+  }
+
+  // data.ok === true -> confirmado | data === null -> enviado, no verificable
+  return data || { ok: true, verificado: false };
 }

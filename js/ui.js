@@ -38,3 +38,17 @@ export function actualizarCountdown(segs) {
   document.getElementById('cd-m').textContent = String(m).padStart(2, '0');
   document.getElementById('cd-s').textContent = String(s).padStart(2, '0');
 }
+
+// Aviso flotante (toast) no bloqueante. Se usa, por ejemplo, si falla el guardado.
+export function mostrarToast(mensaje, ms = 5000) {
+  let toast = document.getElementById('aoris-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'aoris-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = mensaje;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), ms);
+}

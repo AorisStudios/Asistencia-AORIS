@@ -2,7 +2,8 @@
 
 import { PINS, EMPS, getEmpleado } from './config.js';
 import { getDispositivoInfo, getFingerprint } from './fingerprint.js';
-import { simpleHash, gmt5 } from './utils.js';
+import { simpleHash } from './utils.js';
+import { salidaDisponible } from './reglas.js';
 import { ipInfo } from './api.js';
 import { sonidoError, sonidoPIN } from './audio.js';
 
@@ -86,11 +87,8 @@ export function setBtnMarca() {
   } else {
     welTitle.textContent = '¡Hasta luego, ' + cur + '! 👋';
 
-    // Salida disponible a partir de la 1 PM (13:00)
-    const horaActual = gmt5();
-    const esAntesDelasUnaPM = horaActual.getHours() < 13;
-
-    if (esAntesDelasUnaPM) {
+    // Salida disponible a partir de la hora definida en reglas.js
+    if (!salidaDisponible()) {
       welSub.textContent = '📍 Salida disponible a partir de la 1 PM';
       btn.style.cssText = 'display:block;margin:20px auto;cursor:not-allowed;text-align:center;max-width:300px;opacity:0.5;pointer-events:none;';
       btn.innerHTML = '<div class="rgb-wrap"><div class="rgb-inner-salida" style="cursor:not-allowed;">🚪 MARCAR SALIDA</div></div>';

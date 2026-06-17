@@ -6,7 +6,7 @@ import { obtenerIPInfo } from './api.js';
 import { warmUpGPU } from './fingerprint.js';
 import { cargarLocal, estado } from './storage.js';
 import { typeWriter, aplicarTema, actualizarCountdown } from './ui.js';
-import { refTabla, cargarDesdeSheet, updateProgress } from './asistencia.js';
+import { refTabla, cargarDesdeSheet, updateProgress, renderTarjetasEmpleados } from './asistencia.js';
 import { inicializarEventos } from './eventos.js';
 
 function tick() {
@@ -43,6 +43,7 @@ export function iniciarApp() {
 
 // Init on page load
 window.addEventListener('load', () => {
+  renderTarjetasEmpleados();
   inicializarEventos();
 
   const frase = FRASES[Math.floor(Math.random() * FRASES.length)];

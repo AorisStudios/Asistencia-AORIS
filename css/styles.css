@@ -2447,3 +2447,6 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* El avatar de las tarjetas usa el SVG de EMPLEADOS (76px); lo ajustamos a 64px */
+.ao-avatar svg { width: 64px; height: 64px; }

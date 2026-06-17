@@ -1,6 +1,6 @@
 // AORIS STUDIOS - Asistencia (Attendance) Module
 
-import { EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA } from './config.js';
+import { EMPLEADOS, EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA } from './config.js';
 import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor } from './utils.js';
 import { sonidoEntrada, sonidoSalida } from './audio.js';
 import { estado, guardarLocal } from './storage.js';
@@ -254,4 +254,34 @@ export function intentarMarcar() {
   } else {
     ejecutarMarca('salida', hora);
   }
+}
+
+// Construye las tarjetas de empleados desde EMPLEADOS (fuente única).
+// Reemplaza el HTML que antes estaba hardcodeado en index.html.
+export function renderTarjetasEmpleados() {
+  const cont = document.getElementById('ao-employees');
+  if (!cont) return;
+  cont.innerHTML = EMPLEADOS.map((emp) => {
+    const n = emp.nombre;
+    const lower = n.toLowerCase();
+    return `<div class="ao-emp" id="emp-${n}">
+      <div class="ao-emp-hdr ao-emp-hdr-${lower}">
+        <div class="ao-avatar" style="background:${emp.bgColor};">${emp.avatar}</div>
+        <div class="ao-emp-name">${n}</div>
+        <div class="ao-emp-st" id="st-${n}">Sin registro hoy</div>
+        <div class="btn-historial" data-emp="${n}" data-color="${emp.color}">📊 Mi rendimiento</div>
+      </div>
+      <div class="ao-emp-body">
+        <div class="ao-emp-times">
+          <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🕘 Entrada</span><span class="ao-bdg none" id="tr-${n}-e"></span></div>
+          <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🏁 Sale a las</span><span class="ao-bdg none" id="tr-${n}-p"></span></div>
+          <div class="ao-emp-time-box"><span class="ao-emp-time-lbl">🚪 Salida</span><div id="tr-${n}-s"></div></div>
+        </div>
+        <div class="ao-emp-prog" id="prog-${n}">
+          <div class="ao-emp-prog-lbl"><span id="prog-pct-${n}"></span><span id="prog-eta-${n}"></span></div>
+          <div class="ao-emp-prog-row"><div class="ao-emp-prog-track"><div class="ao-emp-prog-fill" id="prog-fill-${n}" style="width:0%"></div></div><span class="ao-emp-prog-moon">🌕</span></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }

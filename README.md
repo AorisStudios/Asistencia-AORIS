@@ -1,195 +1,128 @@
-# AORIS STUDIOS - Sistema de Asistencia
+# AORIS STUDIOS — Sistema de Asistencia
 
-Control de asistencia digital para AORIS STUDIOS. App vanilla JS con módulos ES Modules, Google Apps Script como backend, y Netlify para hosting.
+Control de asistencia digital para AORIS STUDIOS. App web _vanilla_ (HTML/CSS/JS con módulos ES nativos), backend en Google Apps Script y hosting en Netlify. Sin bundler ni paso de build.
 
-## 📁 Estructura
+## Estructura
 
 ```
-aoris-asistencia/
-├── index.html              # HTML principal (limpio, sin código JS incrustado)
+Asistencia-AORIS/
+├── index.html            # Estructura de la UI (sin onclick ni estilos inline estáticos)
 ├── css/
-│   └── styles.css         # Todo el CSS consolidado (7000+ líneas)
-├── js/                    # Módulos ES (type="module")
-│   ├── config.js         # Constantes (PINs, URLs, empleados)
-│   ├── utils.js          # Helpers (fecha, tiempo, cálculos)
-│   ├── audio.js          # Síntesis de audio (beeps)
-│   ├── fingerprint.js    # Hardware info (GPU, cores, RAM)
-│   ├── api.js            # Fetch IP + Google Apps Script
-│   ├── storage.js        # localStorage wrapper
-│   ├── ui.js             # DOM utilities
-│   ├── auth.js           # PIN validation
-│   ├── asistencia.js     # Lógica entrada/salida
+│   └── styles.css        # Estilos
+├── js/                   # Módulos ES (type="module")
+│   ├── config.js         # Fuente única de verdad (EMPLEADOS) + URLs y constantes
+│   ├── utils.js          # Helpers de fecha/hora y cálculos
+│   ├── data.js           # Acceso a datos: descarga y parsea el CSV del Sheet
+│   ├── api.js            # Envío de marcas al Apps Script + detección de IP/ISP
+│   ├── storage.js        # localStorage (sesión del día)
+│   ├── fingerprint.js    # Info de dispositivo (GPU, cores, RAM) con cache
+│   ├── audio.js          # Sonidos (beeps sintetizados)
+│   ├── ui.js             # Utilidades de UI (tema, countdown, toast)
+│   ├── auth.js           # Validación de PIN e ISP
+│   ├── asistencia.js     # Lógica de entrada/salida y modales
+│   ├── historial.js      # Historial mensual por empleado
 │   ├── jefe.js           # Vista de administrador
-│   ├── historial.js      # Registros del mes
-│   ├── splash.js         # Animaciones iniciales
+│   ├── splash.js         # Animaciones de inicio
+│   ├── eventos.js        # Cableado de la UI (addEventListener, delegación)
 │   ├── app.js            # Orquestador principal
-│   └── health-check.js   # Validación de módulos
-├── assets/
-│   └── avatars/          # (Vacío por ahora)
-├── TESTING.md            # Guía completa de testing
-└── README.md             # Este archivo
+│   └── health-check.js   # Validación de módulos (debug)
+├── eslint.config.js      # Configuración de ESLint
+├── .prettierrc.json      # Configuración de Prettier
+├── .editorconfig
+├── .gitattributes        # Normaliza finales de línea a LF
+├── package.json
+└── README.md
 ```
 
-## 🚀 Stack Tecnológico
+## Stack
 
-- **Frontend**: HTML/CSS/JavaScript vanilla
-- **Módulos**: ES Modules nativos (sin bundler, directo a producción)
-- **Backend**: Google Apps Script (API serverless)
-- **Storage**: localStorage (sesión diaria) + Google Sheets (histórico)
-- **Deployment**: Netlify (static hosting)
+- **Frontend:** HTML/CSS/JavaScript vanilla con módulos ES nativos (sin bundler).
+- **Backend:** Google Apps Script (serverless) que escribe en Google Sheets.
+- **Lectura de histórico:** CSV público del Sheet.
+- **Storage de sesión:** localStorage (estado del día).
+- **Deploy:** Netlify (hosting estático).
 
-## 🎯 Funcionalidades
+## Funcionalidades
 
-### Para Empleados
-- ✅ Marcar entrada/salida con PIN
-- ✅ Validación de ISP autorizado
-- ✅ Barra de progreso del turno
-- ✅ Alertas si falta completar turno
-- ✅ Historial del mes actual
-- ✅ Tema día/noche automático
+### Empleados
+- Marcar entrada/salida con PIN.
+- Validación de ISP autorizado (configurable por empleado).
+- Barra de progreso del turno y cuenta regresiva.
+- Historial del mes ("Mi rendimiento").
+- Tema día/noche automático (hora de Lima).
+- Aviso si una marca no se pudo guardar (sin conexión).
 
-### Para Administrador
-- ✅ Vista de registros con filtros
-- ✅ Información de dispositivo (GPU, cores, SO)
-- ✅ Alertas por ISP fuera de rango
-- ✅ Búsqueda por fecha, empleado, estado
+### Administrador
+- Vista de registros con filtros (hoy/semana, empleado, estado).
+- Información del dispositivo por marca (GPU, cores, RAM, SO, ISP).
+- Alertas por ISP fuera de lo autorizado.
 
-## 📋 Empleados (Hardcoded)
+## Empleados (configuración)
 
-| Nombre | PIN | Turno | Color |
-|--------|-----|-------|-------|
-| Ronald | 2323 | 7.5h | #C4A8FF (púrpura) |
-| Brandon | 1456 | 7.5h | #FFBC6B (naranja) |
-| Mathias | 2867 | 9h | #8DCF5B (verde) |
+Todo lo de cada empleado vive en un único arreglo `EMPLEADOS` en `js/config.js`
+(pin, horas de turno, si valida ISP, colores y avatar). Para agregar o cambiar
+un empleado, se edita **solo ese arreglo**.
 
-**Admin PIN**: `1215` (5 clicks en logo AORIS)
+| Nombre  | PIN  | Turno | Valida ISP |
+|---------|------|-------|------------|
+| Ronald  | 2323 | 7.5h  | Sí         |
+| Brandon | 1456 | 7.5h  | Sí         |
+| Mathias | 2867 | 9h    | No         |
 
-## 🔧 Configuración
+**PIN de administrador:** `1215` (5 clics en el logo de AORIS).
 
-Edita `js/config.js`:
-- `SCRIPT_URL`: Endpoint de Google Apps Script
-- `CSV_URL`: URL pública de la hoja de cálculos (CSV)
-- `ISP_AUTORIZADO`: ISP permitido para entrada/salida
-- `PINS`: Diccionario de PINs por empleado
-- `JEFE_PIN`: PIN de acceso a vista de jefe
+## Configuración
 
-## 📱 Responsive
+En `js/config.js`:
+- `SCRIPT_URL` — endpoint del Apps Script (recibe los POST de marcado).
+- `CSV_URL` — URL pública (CSV) del Sheet para leer el histórico.
+- `ISP_AUTORIZADO` — ISP permitido.
+- `EMPLEADOS` — fuente única de datos por empleado.
+- `JEFE_PIN` — PIN de la vista de administrador.
 
-- **Mobile** (<640px): Tarjetas stacked, fuentes pequeñas
-- **Tablet** (640-1023px): Tarjetas 2-3 por fila
-- **Desktop** (>1024px): Layout completo 3 tarjetas lado a lado
+> Importante: `SCRIPT_URL` y `CSV_URL` deben apuntar al **mismo** Google Sheet.
 
-## 🎨 Temas
+## Backend (Apps Script)
 
-- **Día** (6:00-18:00): Fondo claro, texto oscuro, amarillo AORIS
-- **Noche** (18:00-6:00): Fondo oscuro, texto claro, azul neón
+La app envía un POST al `SCRIPT_URL` con:
 
-## 🔌 API (Google Apps Script)
-
-```javascript
-// POST al SCRIPT_URL con:
-{
-  nombre: "Ronald",
-  fecha: "25/12/2024",
-  hora: "09:30:45",
-  tipo: "entrada" | "salida",
-  ip: "ISP Name",
-  dispositivo: "GPU · cores · RAM · SO · res · Nav",
-  alerta: "✅ ISP: RED INTERCABLE...",
-  temprano: "faltaron 45min" | "",
-  fingerprintHash: "DEADBEEF"
-}
+```
+{ nombre, fecha, hora, tipo: "entrada"|"salida", isp, dispositivo, alerta, temprano, fingerprintHash }
 ```
 
-La respuesta se guarda en Google Sheets automáticamente.
+El script busca la fila por nombre+fecha y la actualiza, o crea una nueva, y
+responde `{ ok: true }`. La app lee esa respuesta para confirmar el guardado.
 
-## 💾 Storage
+> Tras editar el código del Apps Script hay que publicar una **versión nueva**
+> (Implementar → Administrar implementaciones → Editar → Versión: nueva) para
+> que el cambio tome efecto en la URL `/exec`.
 
-### LocalStorage (por sesión)
-```javascript
-{
-  fecha: "25/12/2024",
-  estado: {
-    Ronald: { entrada: "09:30:45", salida: "17:30:45", temprano: "" },
-    Brandon: { entrada: "10:00:00", salida: null, temprano: "" },
-    Mathias: { entrada: null, salida: null, temprano: "" }
-  }
-}
-```
+## Desarrollo local
 
-### Google Sheets (histórico)
-Columnas: Nombre | Fecha | Entrada | Salida | Temprano | ISP | Dispositivo | Alerta
-
-## 🧪 Testing Local
+Necesita un servidor (los módulos ES no funcionan abriendo el archivo con `file://`):
 
 ```bash
-# Opción 1: Python
-python -m http.server 8000
-# Abre http://localhost:8000
-
-# Opción 2: Node.js
-npx http-server
-# Abre http://localhost:8080
+python -m http.server 8000   # o:  npm run serve
+# abrir http://localhost:8000
 ```
 
-Ver `TESTING.md` para checklist completo.
+### Tooling
 
-## 📊 Health Check
-
-En consola:
-```javascript
-import('./js/health-check.js').then(m => m.healthCheck());
+```bash
+npm install        # instala ESLint y Prettier (una sola vez)
+npm run lint       # revisa el código
+npm run format     # formatea el código
 ```
 
-## 🐛 Debugging
+## Despliegue (Netlify)
 
-En consola:
-```javascript
-// Estado actual
-window.appState.estado
+1. `commit` + `push` a GitHub.
+2. Netlify despliega automáticamente la rama conectada.
 
-// Hora GMT-5
-window.appState.gmt5()
+## Autor
 
-// Iniciar app manualmente
-window.appState.iniciarApp()
-```
+Deiv Rivera · AORIS STUDIOS
 
-## 🔐 Seguridad
+## Licencia
 
-- ✅ PIN validation local
-- ✅ Fingerprint + ISP check
-- ✅ No credenciales en URLs (Google Apps Script usa POST)
-- ✅ CORS handled via `mode: 'no-cors'`
-
-## 📈 Performance
-
-- **Cero build step**: Módulos nativos ES6
-- **Lightweight**: ~150KB CSS + JS combinados (sin gzip)
-- **Fast**: LocalStorage para sesión, CSV para histórico
-- **Offline-ready**: Funciona sin conexión (dentro de la sesión)
-
-## 🚢 Despliegue Netlify
-
-1. Commit `aoris-asistencia/` a GitHub
-2. Connect repo a Netlify
-3. Build command: (dejar vacío)
-4. Publish directory: `aoris-asistencia/`
-5. Deploy
-
-La app estará live en https://tu-sitio.netlify.app
-
-## 📝 Notas
-
-- No requiere compilación ni bundler
-- Funciona en navegadores 2020+ (Chrome, Firefox, Safari, Edge)
-- Google Apps Script debe estar publicado y accesible
-- Hoja de Google Sheets debe ser pública (o con acceso compartido)
-
-## 👤 Autor
-
-Deiv Rivera | AORIS STUDIOS
-
-## 📄 Licencia
-
-Privada - Solo para AORIS STUDIOS
+Privada — uso interno de AORIS STUDIOS.

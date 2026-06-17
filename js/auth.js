@@ -2,8 +2,10 @@
 
 import { PINS, EMPS, getEmpleado } from './config.js';
 import { getDispositivoInfo, getFingerprint } from './fingerprint.js';
-import { simpleHash } from './utils.js';
+import { simpleHash, fmtFecha, gmt5 } from './utils.js';
 import { salidaDisponible } from './reglas.js';
+import { estaBloqueado } from './calendario.js';
+import { mostrarToast } from './ui.js';
 import { ipInfo } from './api.js';
 import { sonidoError, sonidoPIN } from './audio.js';
 
@@ -24,6 +26,18 @@ export function validarPC(nombreEmpleado) {
 }
 
 export function selEmp(n) {
+  // Bloquear si hoy es feriado de descanso o ausencia de día completo.
+  // Se permite igual si ya marcó entrada (para que pueda marcar su salida).
+  const estadoActual = window.appState?.estado || {};
+  const yaTieneEntrada = estadoActual[n] && estadoActual[n].entrada;
+  if (!yaTieneEntrada) {
+    const bloqueo = estaBloqueado(n, fmtFecha(gmt5()));
+    if (bloqueo.bloqueado) {
+      mostrarToast(bloqueo.motivo + ' \u2014 hoy no necesitas marcar.');
+      return;
+    }
+  }
+
   cur = n;
   pinOk = false;
   EMPS.forEach(x => {

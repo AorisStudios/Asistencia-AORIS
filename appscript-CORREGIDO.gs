@@ -5,12 +5,13 @@
 // Version: Nueva version > Implementar.
 //
 // - doPost: guarda la marca (entrada/salida) en el Sheet.
-// - doGet : DEVUELVE todos los registros en JSON (lectura en tiempo real).
-//           La app lee de aquí, ya no del CSV publicado (que tenía retraso).
+// - doGet : devuelve registros + feriados + ausencias en JSON (tiempo real).
 // ===================================================================
 
 const SPREADSHEET_ID = '1fOp6pZLGUjmy0socmHCnBA52gyhDR2d6ofZG7n-t-3s';
 const SHEET_NAME = 'Asistencia';
+const FERIADOS_SHEET = 'Feriados';
+const AUSENCIAS_SHEET = 'Ausencias';
 
 // Normaliza una fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacia.
 function formatearFecha(fecha, tz) {
@@ -32,6 +33,43 @@ function formatearHora(hora, tz) {
     return Utilities.formatDate(hora, tz, 'HH:mm');
   }
   return String(hora).trim();
+}
+
+function leerFeriados(ss, tz) {
+  const sh = ss.getSheetByName(FERIADOS_SHEET);
+  if (!sh) return [];
+  const d = sh.getDataRange().getDisplayValues();
+  const out = [];
+  for (let i = 1; i < d.length; i++) {
+    const fecha = formatearFecha(d[i][0], tz);
+    if (!fecha) continue;
+    const esLaboral = ['si', 'sí', 'true', '1', 'x'].indexOf((d[i][2] + '').trim().toLowerCase()) > -1;
+    out.push({ fecha: fecha, nombre: (d[i][1] + '').trim(), esLaboral: esLaboral });
+  }
+  return out;
+}
+
+function leerAusencias(ss, tz) {
+  const sh = ss.getSheetByName(AUSENCIAS_SHEET);
+  if (!sh) return [];
+  const d = sh.getDataRange().getDisplayValues();
+  const out = [];
+  for (let i = 1; i < d.length; i++) {
+    const empleado = (d[i][0] + '').trim();
+    const desde = formatearFecha(d[i][1], tz);
+    if (!empleado || !desde) continue;
+    const horasRaw = (d[i][4] + '').trim();
+    out.push({
+      empleado: empleado,
+      desde: desde,
+      hasta: formatearFecha(d[i][2], tz) || desde,
+      tipo: (d[i][3] + '').trim(),
+      horas: horasRaw === '' ? null : Number(horasRaw),
+      estado: (d[i][5] + '').trim(),
+      motivo: (d[i][6] + '').trim()
+    });
+  }
+  return out;
 }
 
 function doPost(e) {
@@ -116,8 +154,12 @@ function doGet(e) {
       });
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ ok: true, registros: registros }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({
+      ok: true,
+      registros: registros,
+      feriados: leerFeriados(ss, tz),
+      ausencias: leerAusencias(ss, tz)
+    })).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);

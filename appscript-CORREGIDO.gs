@@ -1,33 +1,37 @@
 // ===================================================================
 // AORIS STUDIOS - Apps Script (backend)
-// Pega TODO este contenido en el editor de Apps Script, reemplazando
-// lo que tengas. Luego: Implementar > Administrar implementaciones >
-// Editar (lapiz) > Version: Nueva version > Implementar.
+// Pega TODO esto en el editor de Apps Script, reemplazando lo que tengas.
+// Luego: Implementar > Administrar implementaciones > Editar (lapiz) >
+// Version: Nueva version > Implementar.
 //
-// Cambios:
-//  - Arregla el duplicado de salida (busca fila por nombre+fecha).
-//  - BLINDAJE: si la marca llega SIN fecha, el servidor le pone la de hoy.
-//  - Guarda fecha y hora como TEXTO (la hora queda HH:MM, sin segundos).
+// - doPost: guarda la marca (entrada/salida) en el Sheet.
+// - doGet : DEVUELVE todos los registros en JSON (lectura en tiempo real).
+//           La app lee de aquí, ya no del CSV publicado (que tenía retraso).
 // ===================================================================
 
 const SPREADSHEET_ID = '1fOp6pZLGUjmy0socmHCnBA52gyhDR2d6ofZG7n-t-3s';
 const SHEET_NAME = 'Asistencia';
 
-// Normaliza CUALQUIER fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacia.
+// Normaliza una fecha (Date o texto) a "dd/MM/yyyy". Devuelve '' si viene vacia.
 function formatearFecha(fecha, tz) {
   if (!fecha && fecha !== 0) return '';
-
   if (fecha instanceof Date) {
     return Utilities.formatDate(fecha, tz, 'dd/MM/yyyy');
   }
-
   const partes = String(fecha).trim().split('/');
   if (partes.length === 3) {
-    const dia = partes[0].padStart(2, '0');
-    const mes = partes[1].padStart(2, '0');
-    return dia + '/' + mes + '/' + partes[2];
+    return partes[0].padStart(2, '0') + '/' + partes[1].padStart(2, '0') + '/' + partes[2];
   }
   return String(fecha).trim();
+}
+
+// Normaliza una hora (Date o texto) a "HH:mm".
+function formatearHora(hora, tz) {
+  if (!hora && hora !== 0) return '';
+  if (hora instanceof Date) {
+    return Utilities.formatDate(hora, tz, 'HH:mm');
+  }
+  return String(hora).trim();
 }
 
 function doPost(e) {
@@ -39,8 +43,6 @@ function doPost(e) {
     const tz = ss.getSpreadsheetTimeZone();
 
     const dispositivoCompleto = body.dispositivo + ' · ISP: ' + (body.isp || '?');
-
-    // Si la marca no trae fecha, usar la fecha de HOY del servidor.
     const hoy = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy');
     const fechaBuscada = formatearFecha(body.fecha, tz) || hoy;
 
@@ -50,7 +52,6 @@ function doPost(e) {
     for (let i = 1; i < data.length; i++) {
       const nombreEnFila = (data[i][1] + '').trim();
       const fechaEnFila = formatearFecha(data[i][2], tz);
-
       if (nombreEnFila === body.nombre && fechaEnFila === fechaBuscada) {
         rowFound = i + 1;
         break;
@@ -58,7 +59,6 @@ function doPost(e) {
     }
 
     if (rowFound > 0) {
-      // ACTUALIZAR fila existente
       if (body.tipo === 'entrada') {
         sheet.getRange(rowFound, 4).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(rowFound, 7).setValue(dispositivoCompleto);
@@ -69,12 +69,10 @@ function doPost(e) {
       }
       sheet.getRange(rowFound, 9).setValue(body.alerta);
     } else {
-      // CREAR fila nueva
       const lastRow = sheet.getLastRow() + 1;
       sheet.getRange(lastRow, 1).setValue(lastRow - 1);
       sheet.getRange(lastRow, 2).setValue(body.nombre);
       sheet.getRange(lastRow, 3).setNumberFormat('@').setValue(fechaBuscada);
-
       if (body.tipo === 'entrada') {
         sheet.getRange(lastRow, 4).setNumberFormat('@').setValue(body.hora);
         sheet.getRange(lastRow, 7).setValue(dispositivoCompleto);
@@ -95,5 +93,33 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput('OK');
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    const tz = ss.getSpreadsheetTimeZone();
+    const data = sheet.getDataRange().getValues();
+
+    const registros = [];
+    for (let i = 1; i < data.length; i++) {
+      const nombre = (data[i][1] + '').trim();
+      const entrada = formatearHora(data[i][3], tz);
+      if (!nombre || !entrada) continue;
+      registros.push({
+        nombre: nombre,
+        fecha: formatearFecha(data[i][2], tz),
+        entrada: entrada,
+        salida: formatearHora(data[i][4], tz),
+        temprano: (data[i][5] + '').trim(),
+        dispEntrada: (data[i][6] + '').trim(),
+        dispSalida: (data[i][7] + '').trim(),
+        alerta: (data[i][8] + '').trim()
+      });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, registros: registros }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }

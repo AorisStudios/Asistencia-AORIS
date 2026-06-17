@@ -1,15 +1,15 @@
-// AORIS STUDIOS - Data Access (lectura del Google Sheet)
-// Única puerta de entrada a los datos del Sheet: descarga y parsea el CSV
-// a objetos con campos nombrados. Reutilizado por asistencia, historial y jefe.
+// AORIS STUDIOS - Data Access (lectura del Sheet)
+// Lee los registros directamente del Apps Script (doGet), en TIEMPO REAL.
+// Antes se leía el "CSV publicado", que tenía retraso y a veces venía vacío.
 
-import { CSV_URL } from './config.js';
+import { SCRIPT_URL } from './config.js';
 import { parseCSVLine } from './utils.js';
 
 // Columnas del Sheet:
 // 0:N°  1:Nombre  2:Fecha  3:Entrada  4:Salida  5:Tiempo faltante
 // 6:Dispositivo Entrada  7:Dispositivo Salida  8:Alerta
 
-// Convierte el texto CSV en un arreglo de registros con campos nombrados.
+// Helper de respaldo: convierte texto CSV en registros con campos nombrados.
 export function parseRegistros(csv) {
   const lineas = csv.trim().split('\n').slice(1); // saltar encabezado
   const registros = [];
@@ -18,7 +18,7 @@ export function parseRegistros(csv) {
     const c = parseCSVLine(linea).map(x => (x || '').replace(/"/g, '').trim());
     const nombre = c[1] || '';
     const entrada = c[3] || '';
-    if (!nombre || !entrada) continue; // ignorar filas vacías o sin entrada
+    if (!nombre || !entrada) continue;
     registros.push({
       indice: c[0] || '',
       nombre,
@@ -34,9 +34,10 @@ export function parseRegistros(csv) {
   return registros;
 }
 
-// Descarga el Sheet (con cache-busting) y devuelve los registros parseados.
+// Descarga los registros del Apps Script (GET) y devuelve un arreglo de objetos.
 export async function obtenerRegistros() {
-  const res = await fetch(CSV_URL + '&t=' + Date.now());
-  const csv = await res.text();
-  return parseRegistros(csv);
+  const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
+  const data = await res.json();
+  if (!data || !data.ok || !Array.isArray(data.registros)) return [];
+  return data.registros;
 }

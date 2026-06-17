@@ -42,8 +42,8 @@ export function refTabla() {
     const card = document.getElementById('emp-' + n);
 
     if (d && d.entrada) {
-      if (e) { e.textContent = fmtHM(d.entrada); e.className = 'ao-bdg in'; }
-      if (p) { p.textContent = fmtHM(addH(d.entrada, getShiftHours(n))); p.className = 'ao-bdg out'; }
+      if (e) { e.textContent = fmtHM(d.entrada); e.className = 'ao-bdg in'; e.style.display = ''; }
+      if (p) { p.textContent = fmtHM(addH(d.entrada, getShiftHours(n))); p.className = 'ao-bdg out'; p.style.display = ''; }
       if (d.salida) {
         if (st) { st.textContent = '✓ Completo'; st.style.color = '#4ADE80'; st.style.fontWeight = '700'; }
         if (card) card.classList.add('done');

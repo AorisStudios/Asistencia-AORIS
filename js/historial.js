@@ -1,6 +1,6 @@
 // AORIS STUDIOS - Historial Module
 
-import { gmt5, fmtFechaLegible, fmtHM, calcPct, getShiftHours } from './utils.js';
+import { gmt5, fmtFechaLegible, fmtHM, calcPct, getShiftHours, getAlmuerzoHoras } from './utils.js';
 import { obtenerDatos } from './data.js';
 import { setCalendario } from './calendario.js';
 import { calcularSaldo, formatearSaldo, saldoDelDia, formatearSaldoCorto } from './horas.js';
@@ -53,7 +53,9 @@ function renderHistorial(nombre, color) {
           const [sh, sm, ss = 0] = salida.split(':').map(Number);
           const segs = (sh * 3600 + sm * 60 + ss) - (eh * 3600 + em * 60 + es);
           pct = Math.min(100, Math.max(0, Math.round((segs / turnoSegs) * 100)));
-          const hh = Math.floor(segs / 3600), mm = Math.floor((segs % 3600) / 60);
+          // Horas trabajadas NETAS: presencia menos el almuerzo del empleado.
+          const segsNet = Math.max(0, segs - getAlmuerzoHoras(nombre) * 3600);
+          const hh = Math.floor(segsNet / 3600), mm = Math.floor((segsNet % 3600) / 60);
           horas = hh + 'h ' + mm + 'm';
           const saleSegs = eh * 3600 + em * 60 + es + turnoSegs;
           est = sh * 3600 + sm * 60 + ss > saleSegs + 60 ? 'tardia' : pct >= 100 ? 'completo' : 'anticipada';

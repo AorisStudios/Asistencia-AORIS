@@ -1,7 +1,7 @@
 // AORIS STUDIOS - Asistencia (Attendance) Module
 
 import { EMPLEADOS, EMPS, AVS, AVBG, EMP_COLORS, MENSAJES_ANTICIPADA, MENSAJES_TARDIA } from './config.js';
-import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor } from './utils.js';
+import { fmt, gmt5, fmtHM, fmtFecha, addH, getShiftHours, getAlmuerzoHoras, calcPct, calcEta, segundosRestantes, minutosTemprano, textoTemprano, shadeColor } from './utils.js';
 import { sonidoEntrada, sonidoSalida } from './audio.js';
 import { estado, guardarLocal } from './storage.js';
 import * as authModule from './auth.js';
@@ -53,7 +53,7 @@ export function refTabla() {
       if (p) { p.textContent = fmtHM(addH(d.entrada, getShiftHours(n))); p.className = 'ao-bdg out'; p.style.display = ''; }
       if (d.salida) {
         if (st) {
-          const horasTxt = horasTrabajadasTexto(d.entrada, d.salida);
+          const horasTxt = horasTrabajadasTexto(d.entrada, d.salida, getAlmuerzoHoras(n));
           const sc = formatearSaldoCorto(saldoDelDia(n, fmtFecha(gmt5()), d.entrada, d.salida, getShiftHours(n)));
           st.innerHTML = `✓ ${horasTxt} <span style="color:${colorSaldo(sc.tipo)};">(${sc.texto})</span>`;
           st.style.color = '#4ADE80';
@@ -172,7 +172,7 @@ export function ejecutarMarca(tipo, hora) {
   } else {
     sonidoSalida();
     temprano = minutosTemprano(estado[cur].entrada, hora, cur); // solo para el mensaje del modal
-    horasTexto = horasTrabajadasTexto(estado[cur].entrada, hora);
+    horasTexto = horasTrabajadasTexto(estado[cur].entrada, hora, getAlmuerzoHoras(cur));
     estado[cur].temprano = horasTexto;
   }
 

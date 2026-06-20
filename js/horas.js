@@ -43,9 +43,15 @@ export function formatearHorasHM(horasDecimal) {
   return h + 'h ' + m + 'm';
 }
 
-// Texto de horas trabajadas entre dos horas "HH:MM" -> "7h 30m".
-export function horasTrabajadasTexto(entrada, salida) {
-  return formatearHorasHM(horasTrabajadas(entrada, salida));
+// Horas NETAS trabajadas: presencia (salida-entrada) menos el almuerzo. Nunca negativo.
+export function horasTrabajadasNetas(entrada, salida, almuerzo = 0) {
+  return Math.max(0, horasTrabajadas(entrada, salida) - (almuerzo || 0));
+}
+
+// Texto de horas trabajadas (netas) entre dos horas "HH:MM" -> "7h 0m".
+export function horasTrabajadasTexto(entrada, salida, almuerzo = 0) {
+  if (!entrada || !salida) return '';
+  return formatearHorasHM(horasTrabajadasNetas(entrada, salida, almuerzo));
 }
 
 // Saldo de UN día (decimal): trabajado - esperado. + = de más, - = de menos.

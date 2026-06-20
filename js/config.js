@@ -11,7 +11,8 @@ export const JEFE_PIN = '1215';
 // FUENTE ÚNICA DE VERDAD: todos los datos por empleado en un solo lugar.
 // Para agregar/editar un empleado, edita SOLO este arreglo.
 //   - pin:        PIN de marcado
-//   - turnoHoras: duración del turno en horas
+//   - turnoHoras: duración del turno (permanencia) en horas
+//   - almuerzoHoras: horas de almuerzo (incluidas en el turno) que NO cuentan como trabajadas
 //   - validaISP:  si false, no se valida el ISP (sin restricciones)
 //   - color:      color principal del empleado
 //   - bgColor:    fondo del avatar
@@ -23,6 +24,7 @@ export const EMPLEADOS = [
     nombre: 'Ronald',
     pin: '2323',
     turnoHoras: 7.5,
+    almuerzoHoras: 0.5,
     validaISP: true,
     color: '#C4A8FF',
     bgColor: '#EDE0FF',
@@ -33,6 +35,7 @@ export const EMPLEADOS = [
     nombre: 'Brandon',
     pin: '1456',
     turnoHoras: 7.5,
+    almuerzoHoras: 0.5,
     validaISP: true,
     color: '#4ECDC4',
     bgColor: '#FFE8C4',
@@ -43,6 +46,7 @@ export const EMPLEADOS = [
     nombre: 'Mathias',
     pin: '2867',
     turnoHoras: 9,
+    almuerzoHoras: 1,
     validaISP: false,
     color: '#5BC8F5',
     bgColor: '#C4F0FF',

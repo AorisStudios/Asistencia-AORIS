@@ -1,10 +1,10 @@
 // AORIS STUDIOS - Jefe (Admin) Module
 
 import { JAVBG, JAVS, EMPLEADOS } from './config.js';
-import { gmt5, fmtFecha, fmtHM, jFmtFecha, jHoras, getShiftHours } from './utils.js';
+import { gmt5, fmtFecha, fmtHM, jFmtFecha, jHoras, getShiftHours, getAlmuerzoHoras } from './utils.js';
 import { obtenerDatos } from './data.js';
 import { setCalendario } from './calendario.js';
-import { saldoDelDia, formatearSaldoCorto } from './horas.js';
+import { saldoDelDia, formatearSaldoCorto, horasTrabajadasTexto } from './horas.js';
 import { enviarAccion } from './api.js';
 import { mostrarToast } from './ui.js';
 
@@ -120,7 +120,8 @@ function jRender() {
       } else {
         const sc = formatearSaldoCorto(saldoDelDia(r.nombre, r.fecha, r.entrada, r.salida, getShiftHours(r.nombre)));
         const scColor = sc.tipo === 'favor' ? '#4ADE80' : sc.tipo === 'pendiente' ? '#FF6B6B' : '#888';
-        horasHtml = `<span style="font-weight:800;color:${hc};">${h}</span> <span style="font-size:11px;font-weight:800;color:${scColor};">${sc.texto}</span>`;
+        const hNet = horasTrabajadasTexto(r.entrada, r.salida, getAlmuerzoHoras(r.nombre)); // horas trabajadas netas (sin almuerzo)
+        horasHtml = `<span style="font-weight:800;color:${hc};">${hNet}</span> <span style="font-size:11px;font-weight:800;color:${scColor};">${sc.texto}</span>`;
       }
       const bgRow = bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)';
 

@@ -3,7 +3,7 @@
 import { gmt5, fmtFechaLegible, fmtHM, calcPct, getShiftHours } from './utils.js';
 import { obtenerDatos } from './data.js';
 import { setCalendario } from './calendario.js';
-import { calcularSaldo, formatearSaldo } from './horas.js';
+import { calcularSaldo, formatearSaldo, saldoDelDia, formatearSaldoCorto } from './horas.js';
 
 let histColorActual = '#C4A8FF';
 
@@ -97,7 +97,13 @@ function renderHistorial(nombre, color) {
           r.est === 'anticipada' ? '<span class="ao-bdg hora-temprano" style="font-size:11px;">' + fmtHM(r.salida) + '</span>' :
           '<span class="ao-bdg in" style="font-size:11px;">' + fmtHM(r.salida) + '</span>';
         html += '<td style="white-space:nowrap;padding:10px 8px;">' + salidaHtmlFixed + '</td>';
-        html += '<td style="color:var(--txt2);font-size:12px;font-weight:700;white-space:nowrap;padding:10px 8px;">' + r.horas + '</td>';
+        let horasCell = r.horas;
+        if (r.salida !== '—') {
+          const sc = formatearSaldoCorto(saldoDelDia(nombre, r.fecha, r.entrada, r.salida, getShiftHours(nombre)));
+          const scColor = sc.tipo === 'favor' ? '#2d6a4f' : sc.tipo === 'pendiente' ? '#cc0000' : 'var(--txt3)';
+          horasCell += ' <span style="font-size:11px;font-weight:800;color:' + scColor + ';">' + sc.texto + '</span>';
+        }
+        html += '<td style="color:var(--txt2);font-size:12px;font-weight:700;white-space:nowrap;padding:10px 8px;">' + horasCell + '</td>';
         html += '<td style="white-space:nowrap;padding:10px 8px;"><div style="display:inline-flex;align-items:center;gap:5px;"><div style="height:8px;width:55px;border-radius:10px;border:2px solid var(--border);background:var(--card);overflow:hidden;"><div style="height:100%;width:' + r.pct + '%;background:' + barColor + ';border-radius:8px;"></div></div><span style="font-size:11px;font-weight:800;color:var(--txt);">' + r.pct + '%</span></div></td>';
         html += '<td style="white-space:nowrap;padding:10px 8px;">' + estadoHtml + '</td></tr>';
       });

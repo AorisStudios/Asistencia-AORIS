@@ -2,7 +2,9 @@
 
 import { JAVBG, JAVS, EMPLEADOS } from './config.js';
 import { gmt5, fmtFecha, fmtHM, jFmtFecha, jHoras, getShiftHours } from './utils.js';
-import { obtenerRegistros, obtenerDatos } from './data.js';
+import { obtenerDatos } from './data.js';
+import { setCalendario } from './calendario.js';
+import { saldoDelDia, formatearSaldoCorto } from './horas.js';
 import { enviarAccion } from './api.js';
 import { mostrarToast } from './ui.js';
 
@@ -65,7 +67,8 @@ function jRowClass(r) {
 }
 
 function jRender() {
-  obtenerRegistros().then(filas => {
+  obtenerDatos().then(({ registros: filas, feriados, ausencias }) => {
+    setCalendario(feriados, ausencias); // para calcular el saldo esperado del día
     const now = gmt5();
     const hoy = fmtFecha(now);
     let rows = filas.map(r => ({
@@ -111,7 +114,14 @@ function jRender() {
       const avHtml = JAVS[r.nombre] || '';
       const avBg = JAVBG[r.nombre] || '#eee';
       const salidaHtml = r.salida ? `<span class="jbdg ${sb}">${r.salida}</span>` : '<span class="jbdg jbdg-x">En turno</span>';
-      const horasHtml = h === '—' ? '<span style="color:#FFD600;font-weight:800;">En turno 🟡</span>' : `<span style="font-weight:800;color:${hc};">${h}</span>`;
+      let horasHtml;
+      if (h === '—') {
+        horasHtml = '<span style="color:#FFD600;font-weight:800;">En turno 🟡</span>';
+      } else {
+        const sc = formatearSaldoCorto(saldoDelDia(r.nombre, r.fecha, r.entrada, r.salida, getShiftHours(r.nombre)));
+        const scColor = sc.tipo === 'favor' ? '#4ADE80' : sc.tipo === 'pendiente' ? '#FF6B6B' : '#888';
+        horasHtml = `<span style="font-weight:800;color:${hc};">${h}</span> <span style="font-size:11px;font-weight:800;color:${scColor};">${sc.texto}</span>`;
+      }
       const bgRow = bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)';
 
       // Botones de dispositivo entrada y salida

@@ -35,6 +35,42 @@ export function calcularSaldo(empleado, registros, turnoHoras) {
   return saldo;
 }
 
+// Horas (decimal) -> texto compacto "7h 30m" (lo que se guarda en el Sheet).
+export function formatearHorasHM(horasDecimal) {
+  const totalMin = Math.round((horasDecimal || 0) * 60);
+  const h = Math.floor(Math.abs(totalMin) / 60);
+  const m = Math.abs(totalMin) % 60;
+  return h + 'h ' + m + 'm';
+}
+
+// Texto de horas trabajadas entre dos horas "HH:MM" -> "7h 30m".
+export function horasTrabajadasTexto(entrada, salida) {
+  return formatearHorasHM(horasTrabajadas(entrada, salida));
+}
+
+// Saldo de UN día (decimal): trabajado - esperado. + = de más, - = de menos.
+// Devuelve 0 si el día está incompleto (falta entrada o salida).
+export function saldoDelDia(empleado, fecha, entrada, salida, turnoHoras) {
+  if (!entrada || !salida) return 0;
+  const esperado = horasEsperadas(empleado, fecha, turnoHoras, esDiaLaborable(fecha));
+  return horasTrabajadas(entrada, salida) - esperado;
+}
+
+// Saldo compacto para mostrar al lado de las horas: { tipo, texto: '+30m' | '-1h 0m' | '0m' }.
+export function formatearSaldoCorto(horasDecimal) {
+  const totalMin = Math.round(horasDecimal * 60);
+  const abs = Math.abs(totalMin);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  let hm = '';
+  if (h > 0) hm += h + 'h ';
+  hm += m + 'm';
+  hm = hm.trim();
+  if (totalMin > 0) return { tipo: 'favor', texto: '+' + hm };
+  if (totalMin < 0) return { tipo: 'pendiente', texto: '-' + hm };
+  return { tipo: 'neutro', texto: '0m' };
+}
+
 // Formatea el saldo para mostrarlo: { tipo: 'favor'|'pendiente'|'neutro', texto }
 export function formatearSaldo(horasDecimal) {
   const totalMin = Math.round(horasDecimal * 60);

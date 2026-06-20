@@ -6,7 +6,8 @@ import { sonidoEntrada, sonidoSalida } from './audio.js';
 import { estado, guardarLocal } from './storage.js';
 import * as authModule from './auth.js';
 import { enviarMarquilla } from './api.js';
-import { obtenerRegistros } from './data.js';
+import { obtenerDatos } from './data.js';
+import { setCalendario } from './calendario.js';
 import { mostrarToast } from './ui.js';
 
 export function updateProgress(nombre) {
@@ -100,8 +101,10 @@ export function refTabla() {
 
 export function cargarDesdeSheet() {
   const hoy = fmtFecha(gmt5());
-  obtenerRegistros()
-    .then(registros => {
+  obtenerDatos()
+    .then(({ registros, feriados, ausencias }) => {
+      setCalendario(feriados, ausencias); // refrescar feriados/ausencias
+
       // Lectura vacía: probable lectura fallida o desactualizada -> no tocar el estado local
       if (!registros.length) { refTabla(); return; }
 

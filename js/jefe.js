@@ -1,8 +1,10 @@
 // AORIS STUDIOS - Jefe (Admin) Module
 
-import { JAVBG, JAVS } from './config.js';
+import { JAVBG, JAVS, EMPLEADOS } from './config.js';
 import { gmt5, fmtFecha, fmtHM, jFmtFecha, jHoras, getShiftHours } from './utils.js';
-import { obtenerRegistros } from './data.js';
+import { obtenerRegistros, obtenerDatos } from './data.js';
+import { enviarAccion } from './api.js';
+import { mostrarToast } from './ui.js';
 
 let jefeLogoClicks = 0;
 let jefeLogoTimer = null;
@@ -220,4 +222,121 @@ export function mostrarDispositivo(boton, tipo = 'entrada') {
 export function cerrarDispositivo() {
   const popover = document.getElementById('disp-popover');
   if (popover) popover.remove();
+}
+
+
+// ===================== Panel de ausencias (vista de jefe) =====================
+
+function ddmmaaaa(isoDate) {
+  // 'yyyy-mm-dd' (input date) -> 'dd/mm/yyyy'
+  const p = (isoDate || '').split('-');
+  if (p.length !== 3) return '';
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+export function abrirAusencias() {
+  // Llenar el selector de empleados
+  const sel = document.getElementById('aus-empleado');
+  if (sel) sel.innerHTML = EMPLEADOS.map(e => '<option value="' + e.nombre + '">' + e.nombre + '</option>').join('');
+  document.getElementById('ausencias-overlay').classList.add('show');
+  cargarPanel();
+}
+
+export function cerrarAusencias() {
+  document.getElementById('ausencias-overlay').classList.remove('show');
+}
+
+function cargarPanel() {
+  const cont = document.getElementById('aus-lista');
+  if (cont) cont.innerHTML = '<div class="aus-vacio">Cargando…</div>';
+  obtenerDatos().then(({ ausencias, feriados }) => { renderListaAusencias(ausencias || []); renderListaFeriados(feriados || []); })
+    .catch(() => { if (cont) cont.innerHTML = '<div class="aus-vacio">❌ Error al cargar</div>'; });
+}
+
+function renderListaAusencias(ausencias) {
+  const cont = document.getElementById('aus-lista');
+  if (!cont) return;
+  if (!ausencias.length) { cont.innerHTML = '<div class="aus-vacio">Sin ausencias registradas</div>'; return; }
+  let html = '';
+  ausencias.forEach(a => {
+    const horas = (a.horas !== null && a.horas !== '' && Number(a.horas) > 0) ? (a.horas + 'h') : 'día completo';
+    const est = String(a.estado).toLowerCase();
+    const estClase = est === 'aprobada' ? 'aus-ok' : est === 'rechazada' ? 'aus-no' : 'aus-pend';
+    html += '<div class="aus-item">' +
+      '<div class="aus-item-info">' +
+        '<div class="aus-item-top"><b>' + a.empleado + '</b> · ' + a.tipo + ' · <span class="' + estClase + '">' + a.estado + '</span></div>' +
+        '<div class="aus-item-sub">' + a.desde + ' → ' + a.hasta + ' · ' + horas + (a.motivo ? ' · ' + a.motivo : '') + '</div>' +
+      '</div>' +
+      '<div class="aus-item-btns">' +
+        (est !== 'aprobada' ? '<button class="aus-accion aus-b-ok" data-fila="' + a.fila + '" data-emp="' + a.empleado + '" data-accion="Aprobada">✔</button>' : '') +
+        (est !== 'rechazada' ? '<button class="aus-accion aus-b-no" data-fila="' + a.fila + '" data-emp="' + a.empleado + '" data-accion="Rechazada">✖</button>' : '') +
+        '<button class="aus-accion aus-b-del" data-fila="' + a.fila + '" data-emp="' + a.empleado + '" data-accion="eliminar">🗑</button>' +
+      '</div>' +
+    '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+export function crearAusencia() {
+  const empleado = document.getElementById('aus-empleado').value;
+  const desde = ddmmaaaa(document.getElementById('aus-desde').value);
+  const hastaRaw = document.getElementById('aus-hasta').value;
+  const hasta = hastaRaw ? ddmmaaaa(hastaRaw) : desde;
+  const tipo = document.getElementById('aus-tipo').value;
+  const horas = document.getElementById('aus-horas').value;
+  const motivo = document.getElementById('aus-motivo').value;
+  if (!empleado || !desde) { mostrarToast('⚠️ Elige empleado y fecha de inicio.'); return; }
+
+  enviarAccion({ accion: 'crearAusencia', empleado, desde, hasta, tipo, horas, estado: 'Aprobada', motivo })
+    .then(() => {
+      mostrarToast('✅ Ausencia agregada.');
+      document.getElementById('aus-horas').value = '';
+      document.getElementById('aus-motivo').value = '';
+      cargarPanel();
+    })
+    .catch(err => mostrarToast('❌ ' + err.message));
+}
+
+export function accionAusencia(fila, empleado, accion) {
+  const payload = accion === 'eliminar'
+    ? { accion: 'eliminarAusencia', fila, empleado }
+    : { accion: 'estadoAusencia', fila, empleado, estado: accion };
+  enviarAccion(payload)
+    .then(() => { mostrarToast('✅ Actualizado.'); cargarPanel(); })
+    .catch(err => mostrarToast('❌ ' + err.message));
+}
+
+
+// ===================== Panel de feriados (vista de jefe) =====================
+
+function renderListaFeriados(feriados) {
+  const cont = document.getElementById('fer-lista');
+  if (!cont) return;
+  if (!feriados.length) { cont.innerHTML = '<div class="aus-vacio">Sin feriados</div>'; return; }
+  let html = '';
+  feriados.forEach(f => {
+    const lab = f.esLaboral ? '<span class="aus-pend">laborable</span>' : '<span class="aus-ok">descanso</span>';
+    html += '<div class="aus-item"><div class="aus-item-info">' +
+      '<div class="aus-item-top"><b>' + f.fecha + '</b> · ' + (f.nombre || '') + '</div>' +
+      '<div class="aus-item-sub">' + lab + '</div></div>' +
+      '<div class="aus-item-btns"><button class="aus-accion aus-b-del fer-accion" data-fila="' + f.fila + '">🗑</button></div>' +
+    '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+export function crearFeriado() {
+  const fecha = ddmmaaaa(document.getElementById('fer-fecha').value);
+  const nombre = document.getElementById('fer-nombre').value;
+  const esLaboral = document.getElementById('fer-laboral').checked;
+  if (!fecha) { mostrarToast('⚠️ Elige la fecha del feriado.'); return; }
+  enviarAccion({ accion: 'crearFeriado', fecha, nombre, esLaboral })
+    .then(() => { mostrarToast('✅ Feriado agregado.'); document.getElementById('fer-nombre').value = ''; cargarPanel(); })
+    .catch(err => mostrarToast('❌ ' + err.message));
+}
+
+export function eliminarFeriado(fila) {
+  enviarAccion({ accion: 'eliminarFeriado', fila })
+    .then(() => { mostrarToast('✅ Feriado eliminado.'); cargarPanel(); })
+    .catch(err => mostrarToast('❌ ' + err.message));
 }

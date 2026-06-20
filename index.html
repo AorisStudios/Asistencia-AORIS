@@ -160,6 +160,7 @@
         <div class="hist-stat"><div class="hist-stat-val" id="hist-comp">—</div><div class="hist-stat-lbl">Completos</div></div>
         <div class="hist-stat"><div class="hist-stat-val" id="hist-ant">—</div><div class="hist-stat-lbl">Anticipadas</div></div>
       </div>
+      <div id="hist-saldo" class="hist-saldo saldo-neutro"></div>
       <table class="ao-table" style="min-width:480px;">
         <thead><tr><th>📅 Fecha</th><th>📥 Entrada</th><th>📤 Salida</th><th>⏱️ Horas</th><th>📊 Turno</th><th>Estado</th></tr></thead>
         <tbody id="hist-body"><tr><td colspan="6" style="text-align:center;padding:24px;">⏳ Cargando...</td></tr></tbody>
@@ -183,7 +184,7 @@
     <div class="jefe-wrap">
       <div class="jefe-header">
         <div><div class="jefe-title">👀 Vista de Jefe</div><div class="jefe-sub">AORIS STUDIOS · Registros de asistencia</div></div>
-        <button class="jefe-close-btn">✕ Salir</button>
+        <div class="jefe-acciones"><button class="jefe-aus-btn" id="btn-abrir-ausencias">🗓️ Ausencias</button><button class="jefe-close-btn">✕ Salir</button></div>
       </div>
       <div id="jresults"></div>
       <div class="jefe-table-wrap"><table class="jefe-table"><thead><tr><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Dispositivo</th><th>Alerta</th></tr></thead><tbody id="jefe-tbody"></tbody></table></div>
@@ -206,6 +207,40 @@
       <div class="disp-modal-close">✕</div>
       <div class="disp-modal-content" id="disp-modal-content"></div>
     </div>
+  </div>
+</div>
+
+<!-- Panel de gestión de ausencias (vista de jefe) -->
+<div id="ausencias-overlay">
+  <div class="aus-wrap">
+    <div class="aus-header">
+      <div class="aus-title">🗓️ Ausencias y feriados</div>
+      <button class="aus-close-btn" id="btn-cerrar-ausencias">✕</button>
+    </div>
+    <div class="aus-sep">Ausencias</div>
+    <div class="aus-form">
+      <select id="aus-empleado" class="aus-input"></select>
+      <select id="aus-tipo" class="aus-input">
+        <option value="vacaciones">Vacaciones</option>
+        <option value="libre">Día libre</option>
+        <option value="permiso">Permiso</option>
+      </select>
+      <label class="aus-lbl">Desde <input type="date" id="aus-desde" class="aus-input"></label>
+      <label class="aus-lbl">Hasta <input type="date" id="aus-hasta" class="aus-input"></label>
+      <input type="number" id="aus-horas" class="aus-input" placeholder="Horas (solo permiso parcial)" min="0" step="0.5">
+      <input type="text" id="aus-motivo" class="aus-input" placeholder="Motivo (opcional)">
+      <button class="aus-add-btn" id="btn-crear-ausencia">+ Agregar ausencia</button>
+    </div>
+    <div id="aus-lista"></div>
+
+    <div class="aus-sep">Feriados</div>
+    <div class="aus-form">
+      <label class="aus-lbl">Fecha <input type="date" id="fer-fecha" class="aus-input"></label>
+      <input type="text" id="fer-nombre" class="aus-input" placeholder="Nombre del feriado">
+      <label class="aus-lbl aus-check"><input type="checkbox" id="fer-laboral"> Se trabaja (laborable)</label>
+      <button class="aus-add-btn" id="btn-crear-feriado">+ Agregar feriado</button>
+    </div>
+    <div id="fer-lista"></div>
   </div>
 </div>
 

@@ -1,15 +1,10 @@
-// AORIS STUDIOS - Data Access (lectura del Sheet)
-// Lee los registros directamente del Apps Script (doGet), en TIEMPO REAL.
-// Antes se leía el "CSV publicado", que tenía retraso y a veces venía vacío.
+// AORIS STUDIOS - Data Access (lectura del Sheet vía Apps Script)
+// Lee en TIEMPO REAL desde el doGet del Apps Script: registros + feriados + ausencias.
 
 import { SCRIPT_URL } from './config.js';
 import { parseCSVLine } from './utils.js';
 
-// Columnas del Sheet:
-// 0:N°  1:Nombre  2:Fecha  3:Entrada  4:Salida  5:Tiempo faltante
-// 6:Dispositivo Entrada  7:Dispositivo Salida  8:Alerta
-
-// Helper de respaldo: convierte texto CSV en registros con campos nombrados.
+// Helper de respaldo: convierte texto CSV de asistencia en registros con campos nombrados.
 export function parseRegistros(csv) {
   const lineas = csv.trim().split('\n').slice(1); // saltar encabezado
   const registros = [];
@@ -34,10 +29,19 @@ export function parseRegistros(csv) {
   return registros;
 }
 
-// Descarga los registros del Apps Script (GET) y devuelve un arreglo de objetos.
-export async function obtenerRegistros() {
+// Descarga TODO del Apps Script: { registros, feriados, ausencias }.
+export async function obtenerDatos() {
   const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
   const data = await res.json();
-  if (!data || !data.ok || !Array.isArray(data.registros)) return [];
-  return data.registros;
+  if (!data || !data.ok) return { registros: [], feriados: [], ausencias: [] };
+  return {
+    registros: Array.isArray(data.registros) ? data.registros : [],
+    feriados: Array.isArray(data.feriados) ? data.feriados : [],
+    ausencias: Array.isArray(data.ausencias) ? data.ausencias : []
+  };
+}
+
+// Solo los registros de asistencia (usado por historial y jefe).
+export async function obtenerRegistros() {
+  return (await obtenerDatos()).registros;
 }

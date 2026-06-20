@@ -121,7 +121,7 @@ function jRender() {
         const sc = formatearSaldoCorto(saldoDelDia(r.nombre, r.fecha, r.entrada, r.salida, getShiftHours(r.nombre)));
         const scColor = sc.tipo === 'favor' ? '#4ADE80' : sc.tipo === 'pendiente' ? '#FF6B6B' : '#888';
         const hNet = horasTrabajadasTexto(r.entrada, r.salida, getAlmuerzoHoras(r.nombre)); // horas trabajadas netas (sin almuerzo)
-        horasHtml = `<span style="font-weight:800;color:${hc};">${hNet}</span> <span style="font-size:11px;font-weight:800;color:${scColor};">${sc.texto}</span>`;
+        horasHtml = `<span style="font-weight:800;color:${hc};">${hNet}</span> <span style="font-size:11px;font-weight:800;color:${scColor};">(${sc.texto})</span>`;
       }
       const bgRow = bgAlterno ? 'rgba(255,214,0,0.08)' : 'rgba(255,255,255,0.02)';
 

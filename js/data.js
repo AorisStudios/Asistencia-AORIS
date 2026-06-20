@@ -20,7 +20,7 @@ export function parseRegistros(csv) {
       fecha: c[2] || '',
       entrada,
       salida: c[4] || '',
-      temprano: c[5] || '',
+      temprano: c[5] || '', // col 6: "Horas trabajadas" (nombre histórico del campo)
       dispEntrada: c[6] || '',
       dispSalida: c[7] || '',
       alerta: c[8] || ''

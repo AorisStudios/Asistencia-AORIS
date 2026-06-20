@@ -8,7 +8,13 @@ import * as authModule from './auth.js';
 import { enviarMarquilla } from './api.js';
 import { obtenerDatos } from './data.js';
 import { setCalendario } from './calendario.js';
+import { horasTrabajadasTexto, saldoDelDia, formatearSaldoCorto } from './horas.js';
 import { mostrarToast } from './ui.js';
+
+// Color del saldo según tipo (verde a favor, rojo pendiente, gris al día).
+function colorSaldo(tipo) {
+  return tipo === 'favor' ? '#2d6a4f' : tipo === 'pendiente' ? '#cc0000' : '#888';
+}
 
 export function updateProgress(nombre) {
   const d = estado[nombre];
@@ -46,7 +52,13 @@ export function refTabla() {
       if (e) { e.textContent = fmtHM(d.entrada); e.className = 'ao-bdg in'; e.style.display = ''; }
       if (p) { p.textContent = fmtHM(addH(d.entrada, getShiftHours(n))); p.className = 'ao-bdg out'; p.style.display = ''; }
       if (d.salida) {
-        if (st) { st.textContent = '✓ Completo'; st.style.color = '#4ADE80'; st.style.fontWeight = '700'; }
+        if (st) {
+          const horasTxt = horasTrabajadasTexto(d.entrada, d.salida);
+          const sc = formatearSaldoCorto(saldoDelDia(n, fmtFecha(gmt5()), d.entrada, d.salida, getShiftHours(n)));
+          st.innerHTML = `✓ ${horasTxt} <span style="color:${colorSaldo(sc.tipo)};">(${sc.texto})</span>`;
+          st.style.color = '#4ADE80';
+          st.style.fontWeight = '700';
+        }
         if (card) card.classList.add('done');
         const mins = minutosTemprano(d.entrada, d.salida, n);
         if (s) s.innerHTML = mins > 0 ? `<span class="ao-bdg hora-temprano">${fmtHM(d.salida)}</span>` : `<span class="ao-bdg in">${fmtHM(d.salida)}</span>`;
@@ -146,7 +158,10 @@ export function ejecutarMarca(tipo, hora) {
   estado[cur]._marcadoEn = Date.now(); // sello local para la ventana de gracia
 
   let temprano = 0;
-  let tempranoTexto = '';
+  // Col 6 del Sheet: horas trabajadas del día (ej. "7h 30m"). Solo se calcula al
+  // marcar salida; en la entrada va vacío. (El campo del payload conserva el
+  // nombre histórico "temprano" por compatibilidad con el Apps Script.)
+  let horasTexto = '';
   const fecha = fmtFecha(gmt5());
   const fp = authModule.getCurFP();
   const alerta = authModule.getCurValidation(cur).alerta;
@@ -156,13 +171,13 @@ export function ejecutarMarca(tipo, hora) {
     sonidoEntrada();
   } else {
     sonidoSalida();
-    temprano = minutosTemprano(estado[cur].entrada, hora, cur);
-    tempranoTexto = temprano > 0 ? `faltaron ${textoTemprano(temprano)}` : '';
-    estado[cur].temprano = tempranoTexto;
+    temprano = minutosTemprano(estado[cur].entrada, hora, cur); // solo para el mensaje del modal
+    horasTexto = horasTrabajadasTexto(estado[cur].entrada, hora);
+    estado[cur].temprano = horasTexto;
   }
 
   // Enviar al servidor y avisar si el guardado falló (p. ej. sin conexión).
-  enviarMarquilla(cur, fecha, hora, tipo, dispositivo, alerta, tempranoTexto, fp)
+  enviarMarquilla(cur, fecha, hora, tipo, dispositivo, alerta, horasTexto, fp)
     .catch((err) => {
       console.error('No se pudo guardar la marca:', err);
       mostrarToast('⚠️ No se pudo guardar la marca. Revisa tu conexión e inténtalo de nuevo.');

@@ -2,7 +2,7 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { setCalendario } from '../js/calendario.js';
-import { esDiaLaborable, horasTrabajadas, calcularSaldo, formatearSaldo } from '../js/horas.js';
+import { esDiaLaborable, horasTrabajadas, calcularSaldo, formatearSaldo, formatearHorasHM, horasTrabajadasTexto, saldoDelDia, formatearSaldoCorto } from '../js/horas.js';
 
 beforeEach(() => {
   setCalendario(
@@ -46,6 +46,34 @@ test('calcularSaldo: días incompletos no cuentan', () => {
     { nombre: 'Ronald', fecha: '15/06/2026', entrada: '09:00', salida: '' } // sin salida -> ignorado
   ];
   assert.equal(calcularSaldo('Ronald', registros, 7.5), 0);
+});
+
+test('formatearHorasHM convierte decimal a "Xh Ym"', () => {
+  assert.equal(formatearHorasHM(7.5), '7h 30m');
+  assert.equal(formatearHorasHM(8), '8h 0m');
+  assert.equal(formatearHorasHM(0), '0h 0m');
+});
+
+test('horasTrabajadasTexto entre dos horas HH:MM', () => {
+  assert.equal(horasTrabajadasTexto('09:00', '16:30'), '7h 30m');
+  assert.equal(horasTrabajadasTexto('09:00', '18:00'), '9h 0m');
+});
+
+test('saldoDelDia: trabajado - esperado (Ronald turno 7.5)', () => {
+  assert.equal(saldoDelDia('Ronald', '15/06/2026', '09:00', '17:30', 7.5), 1);   // 8.5 - 7.5
+  assert.equal(saldoDelDia('Ronald', '15/06/2026', '09:00', '16:00', 7.5), -0.5); // 7 - 7.5
+  assert.equal(saldoDelDia('Ronald', '15/06/2026', '09:00', '', 7.5), 0);         // incompleto
+});
+
+test('saldoDelDia: permiso parcial reduce lo esperado (Mathias 9h, permiso 2h)', () => {
+  // 16/06 Mathias tiene permiso de 2h -> esperado 7; trabaja 7 -> 0
+  assert.equal(saldoDelDia('Mathias', '16/06/2026', '09:00', '16:00', 9), 0);
+});
+
+test('formatearSaldoCorto da signo y tipo', () => {
+  assert.deepEqual(formatearSaldoCorto(0.5), { tipo: 'favor', texto: '+30m' });
+  assert.deepEqual(formatearSaldoCorto(-1), { tipo: 'pendiente', texto: '-1h 0m' });
+  assert.deepEqual(formatearSaldoCorto(0), { tipo: 'neutro', texto: '0m' });
 });
 
 test('formatearSaldo da texto y tipo correctos', () => {

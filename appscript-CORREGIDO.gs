@@ -60,6 +60,7 @@ function leerAusencias(ss, tz) {
     if (!empleado || !desde) continue;
     const horasRaw = (d[i][4] + '').trim();
     out.push({
+      fila: i + 1,
       empleado: empleado,
       desde: desde,
       hasta: formatearFecha(d[i][2], tz) || desde,
@@ -72,6 +73,44 @@ function leerAusencias(ss, tz) {
   return out;
 }
 
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Acciones de gestión de ausencias desde la vista de jefe.
+function manejarAccion(body, ss, tz) {
+  const sh = ss.getSheetByName(AUSENCIAS_SHEET);
+  if (!sh) return jsonOut({ ok: false, error: 'No existe la pestaña Ausencias' });
+
+  if (body.accion === 'crearAusencia') {
+    if (!body.empleado || !body.desde) return jsonOut({ ok: false, error: 'Faltan datos (empleado y desde)' });
+    const fila = sh.getLastRow() + 1;
+    sh.getRange(fila, 1).setValue(body.empleado);
+    sh.getRange(fila, 2).setNumberFormat('@').setValue(body.desde);
+    sh.getRange(fila, 3).setNumberFormat('@').setValue(body.hasta || body.desde);
+    sh.getRange(fila, 4).setValue(body.tipo || 'permiso');
+    sh.getRange(fila, 5).setValue(body.horas == null || body.horas === '' ? '' : Number(body.horas));
+    sh.getRange(fila, 6).setValue(body.estado || 'Aprobada');
+    sh.getRange(fila, 7).setValue(body.motivo || '');
+    return jsonOut({ ok: true });
+  }
+
+  const fila = Number(body.fila);
+  if (!fila || fila < 2) return jsonOut({ ok: false, error: 'Fila inválida' });
+  const nombreFila = (sh.getRange(fila, 1).getValue() + '').trim();
+  if (body.empleado && nombreFila !== body.empleado) return jsonOut({ ok: false, error: 'La fila no coincide con el empleado' });
+
+  if (body.accion === 'estadoAusencia') {
+    sh.getRange(fila, 6).setValue(body.estado || 'Aprobada');
+    return jsonOut({ ok: true });
+  }
+  if (body.accion === 'eliminarAusencia') {
+    sh.deleteRow(fila);
+    return jsonOut({ ok: true });
+  }
+  return jsonOut({ ok: false, error: 'Acción desconocida' });
+}
+
 function doPost(e) {
   try {
     const body = JSON.parse(e.postData.contents);
@@ -79,6 +118,11 @@ function doPost(e) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const tz = ss.getSpreadsheetTimeZone();
+
+    // Acciones del panel de jefe (crear/editar/eliminar ausencias)
+    if (body.accion) {
+      return manejarAccion(body, ss, tz);
+    }
 
     const dispositivoCompleto = body.dispositivo + ' · ISP: ' + (body.isp || '?');
     const hoy = Utilities.formatDate(new Date(), tz, 'dd/MM/yyyy');

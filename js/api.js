@@ -60,3 +60,21 @@ export async function enviarMarquilla(nombre, fecha, hora, tipo, dispositivo, al
   // data.ok === true -> confirmado | data === null -> enviado, no verificable
   return data || { ok: true, verificado: false };
 }
+
+// Envía una acción de gestión al Apps Script (crear/editar/eliminar ausencias).
+export async function enviarAccion(payload) {
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (e) {
+    // respuesta no legible
+  }
+  if (data && data.ok === false) {
+    throw new Error(data.error || 'No se pudo completar la acción');
+  }
+  return data || { ok: true };
+}

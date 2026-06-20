@@ -6,7 +6,7 @@ import { JEFE_PIN, EMPLEADOS } from './config.js';
 import { estado } from './storage.js';
 import { startExperience } from './splash.js';
 import { selEmp, verPin } from './auth.js';
-import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo } from './jefe.js';
+import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo, abrirAusencias, cerrarAusencias, crearAusencia, accionAusencia } from './jefe.js';
 import { abrirHistorial } from './historial.js';
 import { intentarMarcar, cerrarModalConfirm, cerrarBye, elegirRazon } from './asistencia.js';
 
@@ -70,4 +70,13 @@ export function inicializarEventos() {
   const dispOv = $('disp-modal-overlay');
   if (dispOv) dispOv.addEventListener('click', (e) => { if (e.target.id === 'disp-modal-overlay') cerrarDispositivo(); });
   document.querySelector('#disp-modal .disp-modal-close')?.addEventListener('click', cerrarDispositivo);
+
+  // --- Panel de ausencias (vista de jefe) ---
+  $('btn-abrir-ausencias')?.addEventListener('click', abrirAusencias);
+  $('btn-cerrar-ausencias')?.addEventListener('click', cerrarAusencias);
+  $('btn-crear-ausencia')?.addEventListener('click', crearAusencia);
+  $('aus-lista')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.aus-accion');
+    if (btn) accionAusencia(Number(btn.dataset.fila), btn.dataset.emp, btn.dataset.accion);
+  });
 }

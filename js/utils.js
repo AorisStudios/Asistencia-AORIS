@@ -45,6 +45,12 @@ export function getShiftHours(nombre) {
   return emp ? emp.turnoHoras : 7.5;
 }
 
+// Horas de almuerzo del empleado (incluidas en el turno, no cuentan como trabajadas).
+export function getAlmuerzoHoras(nombre) {
+  const emp = getEmpleado(nombre);
+  return emp && emp.almuerzoHoras ? emp.almuerzoHoras : 0;
+}
+
 export function addH(h, hrs) {
   if (!h) return '00:00:00';
   const parts = h.split(':');

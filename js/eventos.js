@@ -6,7 +6,7 @@ import { JEFE_PIN, EMPLEADOS } from './config.js';
 import { estado } from './storage.js';
 import { startExperience } from './splash.js';
 import { selEmp, verPin } from './auth.js';
-import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo, abrirAusencias, cerrarAusencias, crearAusencia, accionAusencia } from './jefe.js';
+import { jefeLogoClick, verificarPinJefe, cerrarJefe, mostrarDispositivo, cerrarDispositivo, abrirAusencias, cerrarAusencias, crearAusencia, accionAusencia, crearFeriado, eliminarFeriado } from './jefe.js';
 import { abrirHistorial } from './historial.js';
 import { intentarMarcar, cerrarModalConfirm, cerrarBye, elegirRazon } from './asistencia.js';
 
@@ -78,5 +78,10 @@ export function inicializarEventos() {
   $('aus-lista')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.aus-accion');
     if (btn) accionAusencia(Number(btn.dataset.fila), btn.dataset.emp, btn.dataset.accion);
+  });
+  $('btn-crear-feriado')?.addEventListener('click', crearFeriado);
+  $('fer-lista')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.fer-accion');
+    if (btn) eliminarFeriado(Number(btn.dataset.fila));
   });
 }

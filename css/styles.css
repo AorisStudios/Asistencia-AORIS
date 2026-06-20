@@ -2482,3 +2482,7 @@ body {
 .aus-no { color: #FF6B6B; font-weight: 800; }
 .aus-pend { color: #FFD600; font-weight: 800; }
 .aus-vacio { text-align: center; color: #9ab; padding: 18px; }
+
+/* Separadores y checkbox del panel de gestión */
+.aus-sep { font-weight: 800; color: #FFD600; margin: 14px 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.aus-check { flex-direction: row !important; align-items: center; gap: 6px; grid-column: 1 / -1; }

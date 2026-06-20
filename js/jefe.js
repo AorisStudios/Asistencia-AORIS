@@ -239,17 +239,17 @@ export function abrirAusencias() {
   const sel = document.getElementById('aus-empleado');
   if (sel) sel.innerHTML = EMPLEADOS.map(e => '<option value="' + e.nombre + '">' + e.nombre + '</option>').join('');
   document.getElementById('ausencias-overlay').classList.add('show');
-  cargarAusencias();
+  cargarPanel();
 }
 
 export function cerrarAusencias() {
   document.getElementById('ausencias-overlay').classList.remove('show');
 }
 
-function cargarAusencias() {
+function cargarPanel() {
   const cont = document.getElementById('aus-lista');
   if (cont) cont.innerHTML = '<div class="aus-vacio">Cargando…</div>';
-  obtenerDatos().then(({ ausencias }) => renderListaAusencias(ausencias || []))
+  obtenerDatos().then(({ ausencias, feriados }) => { renderListaAusencias(ausencias || []); renderListaFeriados(feriados || []); })
     .catch(() => { if (cont) cont.innerHTML = '<div class="aus-vacio">❌ Error al cargar</div>'; });
 }
 
@@ -292,7 +292,7 @@ export function crearAusencia() {
       mostrarToast('✅ Ausencia agregada.');
       document.getElementById('aus-horas').value = '';
       document.getElementById('aus-motivo').value = '';
-      cargarAusencias();
+      cargarPanel();
     })
     .catch(err => mostrarToast('❌ ' + err.message));
 }
@@ -302,6 +302,41 @@ export function accionAusencia(fila, empleado, accion) {
     ? { accion: 'eliminarAusencia', fila, empleado }
     : { accion: 'estadoAusencia', fila, empleado, estado: accion };
   enviarAccion(payload)
-    .then(() => { mostrarToast('✅ Actualizado.'); cargarAusencias(); })
+    .then(() => { mostrarToast('✅ Actualizado.'); cargarPanel(); })
+    .catch(err => mostrarToast('❌ ' + err.message));
+}
+
+
+// ===================== Panel de feriados (vista de jefe) =====================
+
+function renderListaFeriados(feriados) {
+  const cont = document.getElementById('fer-lista');
+  if (!cont) return;
+  if (!feriados.length) { cont.innerHTML = '<div class="aus-vacio">Sin feriados</div>'; return; }
+  let html = '';
+  feriados.forEach(f => {
+    const lab = f.esLaboral ? '<span class="aus-pend">laborable</span>' : '<span class="aus-ok">descanso</span>';
+    html += '<div class="aus-item"><div class="aus-item-info">' +
+      '<div class="aus-item-top"><b>' + f.fecha + '</b> · ' + (f.nombre || '') + '</div>' +
+      '<div class="aus-item-sub">' + lab + '</div></div>' +
+      '<div class="aus-item-btns"><button class="aus-accion aus-b-del fer-accion" data-fila="' + f.fila + '">🗑</button></div>' +
+    '</div>';
+  });
+  cont.innerHTML = html;
+}
+
+export function crearFeriado() {
+  const fecha = ddmmaaaa(document.getElementById('fer-fecha').value);
+  const nombre = document.getElementById('fer-nombre').value;
+  const esLaboral = document.getElementById('fer-laboral').checked;
+  if (!fecha) { mostrarToast('⚠️ Elige la fecha del feriado.'); return; }
+  enviarAccion({ accion: 'crearFeriado', fecha, nombre, esLaboral })
+    .then(() => { mostrarToast('✅ Feriado agregado.'); document.getElementById('fer-nombre').value = ''; cargarPanel(); })
+    .catch(err => mostrarToast('❌ ' + err.message));
+}
+
+export function eliminarFeriado(fila) {
+  enviarAccion({ accion: 'eliminarFeriado', fila })
+    .then(() => { mostrarToast('✅ Feriado eliminado.'); cargarPanel(); })
     .catch(err => mostrarToast('❌ ' + err.message));
 }

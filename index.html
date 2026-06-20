@@ -214,9 +214,10 @@
 <div id="ausencias-overlay">
   <div class="aus-wrap">
     <div class="aus-header">
-      <div class="aus-title">🗓️ Gestión de ausencias</div>
+      <div class="aus-title">🗓️ Ausencias y feriados</div>
       <button class="aus-close-btn" id="btn-cerrar-ausencias">✕</button>
     </div>
+    <div class="aus-sep">Ausencias</div>
     <div class="aus-form">
       <select id="aus-empleado" class="aus-input"></select>
       <select id="aus-tipo" class="aus-input">
@@ -231,6 +232,15 @@
       <button class="aus-add-btn" id="btn-crear-ausencia">+ Agregar ausencia</button>
     </div>
     <div id="aus-lista"></div>
+
+    <div class="aus-sep">Feriados</div>
+    <div class="aus-form">
+      <label class="aus-lbl">Fecha <input type="date" id="fer-fecha" class="aus-input"></label>
+      <input type="text" id="fer-nombre" class="aus-input" placeholder="Nombre del feriado">
+      <label class="aus-lbl aus-check"><input type="checkbox" id="fer-laboral"> Se trabaja (laborable)</label>
+      <button class="aus-add-btn" id="btn-crear-feriado">+ Agregar feriado</button>
+    </div>
+    <div id="fer-lista"></div>
   </div>
 </div>
 

@@ -44,7 +44,7 @@ function leerFeriados(ss, tz) {
     const fecha = formatearFecha(d[i][0], tz);
     if (!fecha) continue;
     const esLaboral = ['si', 'sí', 'true', '1', 'x'].indexOf((d[i][2] + '').trim().toLowerCase()) > -1;
-    out.push({ fecha: fecha, nombre: (d[i][1] + '').trim(), esLaboral: esLaboral });
+    out.push({ fila: i + 1, fecha: fecha, nombre: (d[i][1] + '').trim(), esLaboral: esLaboral });
   }
   return out;
 }
@@ -79,6 +79,10 @@ function jsonOut(obj) {
 
 // Acciones de gestión de ausencias desde la vista de jefe.
 function manejarAccion(body, ss, tz) {
+  if (body.accion === 'crearFeriado' || body.accion === 'eliminarFeriado') {
+    return manejarFeriado(body, ss);
+  }
+
   const sh = ss.getSheetByName(AUSENCIAS_SHEET);
   if (!sh) return jsonOut({ ok: false, error: 'No existe la pestaña Ausencias' });
 
@@ -105,6 +109,27 @@ function manejarAccion(body, ss, tz) {
     return jsonOut({ ok: true });
   }
   if (body.accion === 'eliminarAusencia') {
+    sh.deleteRow(fila);
+    return jsonOut({ ok: true });
+  }
+  return jsonOut({ ok: false, error: 'Acción desconocida' });
+}
+
+function manejarFeriado(body, ss) {
+  const sh = ss.getSheetByName(FERIADOS_SHEET);
+  if (!sh) return jsonOut({ ok: false, error: 'No existe la pestaña Feriados' });
+
+  if (body.accion === 'crearFeriado') {
+    if (!body.fecha) return jsonOut({ ok: false, error: 'Falta la fecha' });
+    const fila = sh.getLastRow() + 1;
+    sh.getRange(fila, 1).setNumberFormat('@').setValue(body.fecha);
+    sh.getRange(fila, 2).setValue(body.nombre || '');
+    sh.getRange(fila, 3).setValue(body.esLaboral ? 'sí' : 'no');
+    return jsonOut({ ok: true });
+  }
+  if (body.accion === 'eliminarFeriado') {
+    const fila = Number(body.fila);
+    if (!fila || fila < 2) return jsonOut({ ok: false, error: 'Fila inválida' });
     sh.deleteRow(fila);
     return jsonOut({ ok: true });
   }
